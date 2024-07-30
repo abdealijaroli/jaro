@@ -1,10 +1,389 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>jaro</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Jaro</title>
         <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --background: hsl(36, 39%, 88%);
+                --foreground: hsl(36, 45%, 15%);
+                --primary: hsl(36, 45%, 70%);
+                --primary-foreground: hsl(36, 45%, 11%);
+                --secondary: hsl(40, 35%, 77%);
+                --secondary-foreground: hsl(36, 45%, 25%);
+                --accent: hsl(36, 64%, 57%);
+                --accent-foreground: hsl(36, 72%, 17%);
+                --destructive: hsl(0, 84%, 37%);
+                --destructive-foreground: hsl(0, 0%, 98%);
+                --muted: hsl(36, 33%, 75%);
+                --muted-foreground: hsl(36, 45%, 25%);
+                --card: hsl(36, 46%, 82%);
+                --card-foreground: hsl(36, 45%, 20%);
+                --popover: hsl(0, 0%, 100%);
+                --popover-foreground: hsl(240, 10%, 3.9%);
+                --border: hsl(36, 45%, 60%);
+                --input: hsl(36, 45%, 60%);
+                --ring: hsl(36, 45%, 30%);
+                --radius: 0rem;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Space Mono", monospace;
+                background-color: var(--background);
+                color: var(--foreground);
+                line-height: 1.5;
+            }
+
+            .container {
+                width: 90%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            header {
+                background-color: var(--background);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                padding: 1rem 0;
+            }
+
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+                color: var(--foreground);
+                font-weight: 600;
+                font-size: 1.25rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            nav a {
+                text-decoration: none;
+                color: var(--foreground);
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .btn {
+                font-family: "Space Mono", monospace;
+                background-color: var(--primary);
+                color: var(--primary-foreground);
+                padding: 0.5rem 1rem;
+                border-radius: var(--radius);
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+            }
+
+            .btn-secondary {
+                background-color: var(--secondary);
+                color: var(--secondary-foreground);
+            }
+
+            main {
+                padding: 2rem 0;
+            }
+
+            section {
+                margin-bottom: 2rem !important;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            p {
+                margin-bottom: 1rem;
+                color: var(--muted-foreground);
+            }
+
+            .btn-group {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .feature-grid,
+            .pricing-grid,
+            .contact-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+
+            .feature-item,
+            .contact-item {
+                background-color: var(--muted);
+                padding: 1.5rem;
+                border-radius: var(--radius);
+            }
+
+            .pricing-card {
+                background-color: var(--card);
+                border-radius: var(--radius);
+                padding: 1.5rem;
+            }
+
+            ul {
+                list-style-type: none;
+                padding-left: 0;
+            }
+
+            li {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            input,
+            textarea {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                background-color: var(--background);
+                color: var(--foreground);
+            }
+
+            footer {
+                background-color: var(--muted);
+                padding: 1.5rem 0;
+                text-align: center;
+                font-size: 0.875rem;
+                color: var(--muted-foreground);
+            }
+
+            @media (min-width: 768px) {
+                nav {
+                    display: flex;
+                    gap: 1rem;
+                }
+
+                .feature-grid,
+                .pricing-grid,
+                .contact-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
+
+                footer .container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            }
+        </style>
     </head>
     <body>
-        <h1>hello name</h1>
+        <header>
+            <div class="container header-content">
+                <a href="#" class="logo">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                        />
+                    </svg>
+                    <span>Jaro</span>
+                </a>
+                <nav>
+                    <a href="#features">Features</a>
+                    <a href="#benefits">Benefits</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#contact">Contact</a>
+                </nav>
+                <button class="btn">Sign Up</button>
+            </div>
+        </header>
+
+        <main>
+            <section id="hero" class="container">
+                <div>
+                    <h1>Streamline Your Online Presence with Jaro</h1>
+                    <p>
+                        Jaro offers a powerful URL shortener and P2P file
+                        sharing solution to help you optimize your digital
+                        footprint and enhance your productivity.
+                    </p>
+                    <div class="btn-group">
+                        <button class="btn">Try it Free</button>
+                        <button class="btn btn-secondary">Learn More</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="features" class="container">
+                <h2>Powerful Features for Your Needs</h2>
+                <p>
+                    Jaro offers a suite of tools to streamline your online
+                    presence and boost your productivity.
+                </p>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h3>URL Shortener</h3>
+                        <p>
+                            Create custom, branded short links to share your
+                            content more effectively.
+                        </p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>P2P File Sharing</h3>
+                        <p>
+                            Securely share large files with your team or clients
+                            using our peer-to-peer technology, without storing
+                            any data on our servers.
+                        </p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Analytics</h3>
+                        <p>
+                            Track the performance of your links and file shares
+                            with detailed analytics.
+                        </p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Integrations</h3>
+                        <p>
+                            Seamlessly integrate Jaro with your existing tools
+                            and workflows.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="benefits" class="container">
+                <h2>Unlock the Benefits of Jaro</h2>
+                <p>
+                    Jaro's suite of tools can help you streamline your online
+                    presence, boost productivity, and enhance your digital
+                    experience.
+                </p>
+                <ul>
+                    <li>Branded, customizable short links</li>
+                    <li>
+                        Secure, peer-to-peer file sharing without any data
+                        stored on our servers
+                    </li>
+                    <li>Detailed analytics and reporting</li>
+                    <li>Seamless integrations with your tools</li>
+                </ul>
+            </section>
+
+            <section id="pricing" class="container">
+                <h2>Pricing that Fits Your Needs</h2>
+                <p>
+                    Choose the plan that works best for your business and unlock
+                    the full potential of Jaro.
+                </p>
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <h3>Free</h3>
+                        <p>Get started for free</p>
+                        <p><strong>$0</strong> per month</p>
+                        <ul>
+                            <li>3 short links</li>
+                            <li>3 P2P file shares per month</li>
+                            <li>Basic analytics</li>
+                        </ul>
+                        <button class="btn">Get Started</button>
+                    </div>
+                    <div class="pricing-card">
+                        <h3>Pro</h3>
+                        <p>Unlock more features</p>
+                        <p><strong>$9</strong> per month</p>
+                        <ul>
+                            <li>Unlimited short links</li>
+                            <li>Unlimited P2P file sharing</li>
+                            <li>Advanced analytics</li>
+                            <li>Custom short links</li>
+                        </ul>
+                        <button class="btn">Get Started</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="container">
+                <h2>Get in Touch</h2>
+                <p>
+                    Have a question or need help? Contact our team and we'll be
+                    happy to assist you.
+                </p>
+                <div class="contact-grid">
+                    <div>
+                        <div class="contact-item">
+                            <h3>Email</h3>
+                            <p>abdeali@jaro.li</p>
+                        </div>
+                    </div>
+                    <form>
+                        <input type="text" placeholder="Name" required />
+                        <input type="email" placeholder="Email" required />
+                        <textarea
+                            placeholder="Message"
+                            rows="5"
+                            required
+                        ></textarea>
+                        <button type="submit" class="btn">Submit</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2024 Jaro. All rights reserved.</p>
+                <nav>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Contact</a>
+                </nav>
+            </div>
+        </footer>
     </body>
 </html>
