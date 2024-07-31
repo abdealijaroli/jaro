@@ -8,15 +8,7 @@ import (
 )
 
 func main() {
-	var helloComponent templ.Component
-	yes := true
-	if yes {
-		helloComponent = hello("aj", "click me yes")
-	} else {
-		helloComponent = hello("aj", "no click me")
-	}
-
-	http.Handle("/", templ.Handler(helloComponent))
+	http.Handle("/", templ.Handler(hello(`hello`, `aj`)))
 
 	fmt.Println("listening on :8008")
 	http.ListenAndServe(":8008", nil)
