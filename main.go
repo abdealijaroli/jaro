@@ -8,6 +8,9 @@ import (
 )
 
 func main() {
+	fs := http.FileServer(http.Dir("."))
+	http.Handle("/", fs)
+
 	http.Handle("/", templ.Handler(hello(`hello`, `aj`)))
 
 	fmt.Println("listening on :8008")
