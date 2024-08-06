@@ -1,24 +1,30 @@
-BINARY_NAME=main
-SRC_DIR=.
-TEMPL_CMD=templ generate
-WATCH_DIRS=$(SRC_DIR)/*.go $(SRC_DIR)/*.templ $(SRC_DIR)/*.html $(SRC_DIR)/*.css
-PID_FILE=server.pid
-
 build:
-	go build -o $(BINARY_NAME) $(SRC_DIR)/main.go
+#	./tailwindcss -i views/css/styles.css -o public/styles.css
+	@templ generate
+	@go build -o main main.go 
 
+test:
+	@go test -v ./...
+	
 run: build
-	@if [ -f $(PID_FILE) ]; then \
-        kill `cat $(PID_FILE)`; \
-        rm $(PID_FILE); \
-    fi
-	./$(BINARY_NAME) & echo $$! > $(PID_FILE)
+	@./main
 
-generate:
-	$(TEMPL_CMD)
+# tailwind:
+# 	@./tailwindcss -i views/css/styles.css -o public/styles.css --watch
 
-watch:
-	@echo "Watching for changes..."
-	@fswatch -o $(WATCH_DIRS) --exclude $(BINARY_NAME) --exclude $(PID_FILE) | xargs -I{} sh -c 'make generate && make run'
+templ:
+	@templ generate -watch -proxy=http://localhost:8008
 
-.PHONY: build run generate watch
+# migration:
+# 	@migrate create -ext sql -dir cmd/migrate/migrations $(filter-out $@,$(MAKECMDGOALS))
+
+# migrate-up:
+# 	@go run cmd/migrate/main.go up
+
+# migrate-down:
+# 	@go run cmd/migrate/main.go down
+
+# watch:
+# 	@air
+# 	@templ
+# 	@tailwind

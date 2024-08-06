@@ -8,11 +8,15 @@ import (
 )
 
 func main() {
-	fs := http.FileServer(http.Dir("."))
+	fs := http.FileServer(http.Dir("web"))
 	http.Handle("/", fs)
 
-	// http.Handle("/", templ.Handler(hello(`hello`, `aj`)))
+	
+	
 
 	fmt.Println("listening on :8008")
-	http.ListenAndServe(":8008", nil) 
+	err := http.ListenAndServe(":8008", nil)
+	if err != nil {
+		fmt.Println("Error starting server:", err)
+	}
 }
