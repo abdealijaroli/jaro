@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	// "github.com/a-h/templ"
+	"github.com/a-h/templ"
 )
 
 func main() {
-	fs := http.FileServer(http.Dir("web"))
-	http.Handle("/", fs)
+	// fs := http.FileServer(http.Dir("web"))
+	// http.Handle("/", fs)
 
 	
+	http.Handle("/", templ.Handler(hello("abdeali", "click me")))
 	
 
 	fmt.Println("listening on :8008")
