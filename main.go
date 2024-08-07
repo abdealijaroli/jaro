@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/a-h/templ"
+	// "github.com/a-h/templ"
+	// "github.com/abdealijaroli/jaro/web/components"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	// http.Handle("/", fs)
 
 	
-	http.Handle("/", templ.Handler(hello("abdeali", "click me")))
+	// http.Handle("/", templ.Handler(hello("abdeali", "click me")))
 	
 
 	fmt.Println("listening on :8008")
