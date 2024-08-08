@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	// "github.com/a-h/templ"
-	// "github.com/abdealijaroli/jaro/web/components"
+	"github.com/a-h/templ"
+	"github.com/abdealijaroli/jaro/web/components"
 )
 
 func main() {
 	// fs := http.FileServer(http.Dir("web"))
 	// http.Handle("/", fs)
 
-	
-	// http.Handle("/", templ.Handler(hello("abdeali", "click me")))
-	
+	http.Handle("/", templ.Handler(components.Hello("abdeali", "click me")))
 
 	fmt.Println("listening on :8008")
 	err := http.ListenAndServe(":8008", nil)
