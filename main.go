@@ -9,10 +9,10 @@ import (
 )
 
 func main() {
-	// fs := http.FileServer(http.Dir("web"))
-	// http.Handle("/", fs)
+	fs := http.FileServer(http.Dir("web"))
+	http.Handle("/", fs )
 
-	http.Handle("/", templ.Handler(components.Hello("abdeali", "click me")))
+	http.Handle("/hello", templ.Handler(components.Hello("abdeali", "click me")))
 
 	fmt.Println("listening on :8008")
 	err := http.ListenAndServe(":8008", nil)

@@ -24,7 +24,7 @@ templ:
 # migrate-down:
 # 	@go run cmd/migrate/main.go down
 
-# watch:
-# 	@air
-# 	@templ
-# 	@tailwind
+watch:
+	@air &
+	@templ &
+	@tailwind &
