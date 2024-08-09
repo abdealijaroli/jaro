@@ -24,7 +24,7 @@ func main() {
 		fmt.Println("Error initializing database:", err)
 		return
 	}
-
+ 
 	fs := http.FileServer(http.Dir("web"))
 	http.Handle("/", fs)
 
