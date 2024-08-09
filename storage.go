@@ -41,6 +41,25 @@ func NewPostgresStore() (*PostgresStore, error) {
 	}, nil
 }
 
+func (s *PostgresStore) Init() error {
+	return s.CreateAccountTable()
+}
+
+func (s *PostgresStore) CreateAccountTable() error {
+	query := `CREATE TABLE IF NOT EXISTS accounts (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50),
+        email VARCHAR(50),
+        created_at TIMESTAMP,
+        short_url VARCHAR(255),
+        original_url VARCHAR(255)
+    )`
+
+	_, err := s.db.Exec(query)
+
+	return err
+}
+
 func (s *PostgresStore) CreateAccount(acc *Account) error {
 	query := `INSERT INTO accounts (name, email, created_at, short_url, original_url) VALUES ($1, $2, $3, $4, $5)`
 	err := s.db.QueryRow(query, acc.Name, acc.Email, acc.CreatedAt, acc.ShortURL, acc.OriginalURL).Scan(&acc.ID)
