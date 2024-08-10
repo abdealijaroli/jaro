@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/abdealijaroli/jaro/types"
 	"github.com/joho/godotenv"
@@ -47,7 +48,7 @@ func (s *PostgresStore) Init() error {
 }
 
 func (s *PostgresStore) Close() error {
-    return s.db.Close()
+	return s.db.Close()
 }
 
 func (s *PostgresStore) CreateAccountTable() error {
@@ -55,6 +56,7 @@ func (s *PostgresStore) CreateAccountTable() error {
         id SERIAL PRIMARY KEY,
         name VARCHAR(50),
         email VARCHAR(50),
+		password_hash VARCHAR(255)
         created_at TIMESTAMP,
         short_url VARCHAR(255),
         original_url VARCHAR(255)
@@ -63,6 +65,34 @@ func (s *PostgresStore) CreateAccountTable() error {
 	_, err := s.db.Exec(query)
 
 	return err
+}
+
+func (s *PostgresStore) CreateShortURLTable() error {
+	query := `CREATE TABLE IF NOT EXISTS short_urls (
+		id SERIAL PRIMARY KEY,
+		account_id INTEGER REFERENCES accounts(id),
+		original_url VARCHAR(255),
+		short_url VARCHAR(10) UNIQUE,
+		created_at TIMESTAMP
+	)`
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) CreateShortURL(originalURL, shortURL string) error {
+	query := `INSERT INTO accounts (original_url, short_url, created_at) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(query, originalURL, shortURL, time.Now())
+	return err
+}
+
+func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
+	var originalURL string
+	query := `SELECT original_url FROM accounts WHERE short_url = $1`
+	err := s.db.QueryRow(query, shortURL).Scan(&originalURL)
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("short URL not found")
+	}
+	return originalURL, err
 }
 
 func (s *PostgresStore) CreateAccount(acc *types.Account) error {
