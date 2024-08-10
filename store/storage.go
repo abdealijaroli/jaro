@@ -1,20 +1,22 @@
-package main
+package store
 
 import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/abdealijaroli/jaro/types"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 type Storage interface {
-	CreateAccount(*Account) error
+	CreateAccount(*types.Account) error
 	DeleteAccount(int) error
-	UpdateAccount(*Account) error
-	GetAccounts() ([]*Account, error)
-	GetAccountByID(int) (*Account, error)
+	UpdateAccount(*types.Account) error
+	GetAccounts() ([]*types.Account, error)
+	GetAccountByID(int) (*types.Account, error)
 }
 
 type PostgresStore struct {
@@ -45,11 +47,16 @@ func (s *PostgresStore) Init() error {
 	return s.CreateAccountTable()
 }
 
+func (s *PostgresStore) Close() error {
+	return s.db.Close()
+}
+
 func (s *PostgresStore) CreateAccountTable() error {
 	query := `CREATE TABLE IF NOT EXISTS accounts (
         id SERIAL PRIMARY KEY,
         name VARCHAR(50),
         email VARCHAR(50),
+		password_hash VARCHAR(255)
         created_at TIMESTAMP,
         short_url VARCHAR(255),
         original_url VARCHAR(255)
@@ -60,7 +67,35 @@ func (s *PostgresStore) CreateAccountTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateAccount(acc *Account) error {
+func (s *PostgresStore) CreateShortURLTable() error {
+	query := `CREATE TABLE IF NOT EXISTS short_urls (
+		id SERIAL PRIMARY KEY,
+		account_id INTEGER REFERENCES accounts(id),
+		original_url VARCHAR(255),
+		short_url VARCHAR(10) UNIQUE,
+		created_at TIMESTAMP
+	)`
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) CreateShortURL(originalURL, shortURL string) error {
+	query := `INSERT INTO accounts (original_url, short_url, created_at) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(query, originalURL, shortURL, time.Now())
+	return err
+}
+
+func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
+	var originalURL string
+	query := `SELECT original_url FROM accounts WHERE short_url = $1`
+	err := s.db.QueryRow(query, shortURL).Scan(&originalURL)
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("short URL not found")
+	}
+	return originalURL, err
+}
+
+func (s *PostgresStore) CreateAccount(acc *types.Account) error {
 	query := `INSERT INTO accounts (name, email, created_at, short_url, original_url) VALUES ($1, $2, $3, $4, $5)`
 	err := s.db.QueryRow(query, acc.Name, acc.Email, acc.CreatedAt, acc.ShortURL, acc.OriginalURL).Scan(&acc.ID)
 	return err
@@ -72,20 +107,20 @@ func (s *PostgresStore) DeleteAccount(id int) error {
 	return err
 }
 
-func (s *PostgresStore) UpdateAccount(acc *Account) error {
+func (s *PostgresStore) UpdateAccount(acc *types.Account) error {
 	query := `UPDATE accounts SET name = $1, email = $2, short_url = $3, original_url = $4 WHERE id = $5`
 	_, err := s.db.Exec(query, acc.Name, acc.Email, acc.ShortURL, acc.OriginalURL, acc.ID)
 	return err
 }
 
-func (s *PostgresStore) GetAccounts() ([]*Account, error) {
+func (s *PostgresStore) GetAccounts() ([]*types.Account, error) {
 	rows, err := s.db.Query(`SELECT * FROM accounts`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	accounts := []*Account{}
+	accounts := []*types.Account{}
 
 	for rows.Next() {
 		acc, err := scanIntoAccount(rows)
@@ -97,7 +132,7 @@ func (s *PostgresStore) GetAccounts() ([]*Account, error) {
 	return accounts, nil
 }
 
-func (s *PostgresStore) GetAccountByID(id int) (*Account, error) {
+func (s *PostgresStore) GetAccountByID(id int) (*types.Account, error) {
 	rows, err := s.db.Query(`SELECT * FROM account WHERE id=$1`, id)
 	if err != nil {
 		return nil, err
@@ -109,8 +144,8 @@ func (s *PostgresStore) GetAccountByID(id int) (*Account, error) {
 	return nil, fmt.Errorf("account %d not found", id)
 }
 
-func scanIntoAccount(rows *sql.Rows) (*Account, error) {
-	acc := &Account{}
+func scanIntoAccount(rows *sql.Rows) (*types.Account, error) {
+	acc := &types.Account{}
 	err := rows.Scan(&acc.ID, &acc.Name, &acc.Email, &acc.CreatedAt, &acc.ShortURL, &acc.OriginalURL)
 	if err != nil {
 		return nil, err
