@@ -2,8 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
+
+	"github.com/abdealijaroli/jaro/store"
 )
 
 var shortenURL string
@@ -15,7 +18,11 @@ var rootCmd = &cobra.Command{
 	Long:  `Jaro CLI for shortening links and transferring files.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if shortenURL != "" {
-			shortened := ShortenURL(shortenURL)
+			shortened, err := ShortenURL(shortenURL, &store.PostgresStore{})
+			if err != nil {
+				fmt.Println("Error shortening URL:", err)
+				return
+			}
 			fmt.Printf("Shortened URL: %s\n", shortened)
 		} else if transferFile != "" {
 			fmt.Printf("Transferring file: %s\n", transferFile)
