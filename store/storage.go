@@ -56,7 +56,7 @@ func (s *PostgresStore) CreateAccountTable() error {
         id SERIAL PRIMARY KEY,
         name VARCHAR(50),
         email VARCHAR(50),
-		password_hash VARCHAR(255)
+		password_hash VARCHAR(255),
         created_at TIMESTAMP,
         short_url VARCHAR(255),
         original_url VARCHAR(255)
