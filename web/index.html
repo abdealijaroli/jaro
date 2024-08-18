@@ -229,7 +229,7 @@
                     <a href="#pricing">Pricing</a>
                     <a href="#contact">Contact</a>
                 </nav> -->
-            <button class="btn">Sign Up (Waitlist)</button>
+            <a href="#contact" class="btn">Sign Up (Waitlist)</a>
         </div>
     </header>
 
@@ -530,7 +530,7 @@
         <section id="contact" class="container">
             <h2>Get in Touch</h2>
             <p>
-                Have a question or need help? Contact me and I'll be
+                Contact me and I'll be
                 happy to assist you.
             </p>
             <div class="contact-grid">
@@ -545,12 +545,13 @@
                         <p>abdeali@jaro.li</p>
                     </div>
                 </div>
-                <form>
-                    <input type="text" placeholder="Name" required />
-                    <input type="email" placeholder="Email" required />
-                    <textarea placeholder="Message" rows="5" required></textarea>
-                    <button type="submit" class="btn">Submit</button>
-                </form>
+                <div>
+                    <form hx-post="/signup">
+                        <input type="text" placeholder="Name" required />
+                        <input type="email" placeholder="Email" required />
+                        <button type="submit" class="btn"><b>Sign me up!</b></button>
+                    </form>
+                </div>
             </div>
         </section>
     </main>
