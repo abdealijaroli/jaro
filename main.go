@@ -6,6 +6,7 @@ import (
 
 	"github.com/a-h/templ"
 
+	"github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
 	"github.com/abdealijaroli/jaro/store"
 	"github.com/abdealijaroli/jaro/web/components"
@@ -31,5 +32,12 @@ func main() {
 
 	http.Handle("/hello", templ.Handler(components.Hello("abdeali", "click me")))
 
+	http.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+		api.AddUserToWaitlist(w, r, storage)
+	})
+	
 	cmd.Execute()
+
+	fmt.Println("Server is running on port 8008")
+	http.ListenAndServe(":8008", nil)
 }
