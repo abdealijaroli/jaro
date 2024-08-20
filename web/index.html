@@ -546,11 +546,12 @@
                     </div>
                 </div>
                 <div>
-                    <form hx-post="/signup">
-                        <input type="text" placeholder="Name" required />
-                        <input type="email" placeholder="Email" required />
+                    <form hx-post="/signup" hx-trigger="submit" hx-target="#result">
+                        <input type="text" name="name" placeholder="Name" required />
+                        <input type="email" name="email" placeholder="Email" required />
                         <button type="submit" class="btn"><b>Sign me up!</b></button>
                     </form>
+                    <div id="result"></div>
                 </div>
             </div>
         </section>

@@ -35,7 +35,7 @@ func main() {
 	http.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
 		api.AddUserToWaitlist(w, r, storage)
 	})
-	
+
 	cmd.Execute()
 
 	fmt.Println("Server is running on port 8008")
