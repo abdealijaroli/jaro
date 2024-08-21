@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/abdealijaroli/jaro/store"
@@ -12,7 +12,6 @@ func AddUserToWaitlist(w http.ResponseWriter, r *http.Request, storage *store.Po
 	var name, email string
 
 	contentType := r.Header.Get("Content-Type")
-	fmt.Printf("Content-Type: %s\n", contentType)
 
 	if contentType == "application/json" {
 		var data struct {
@@ -20,22 +19,20 @@ func AddUserToWaitlist(w http.ResponseWriter, r *http.Request, storage *store.Po
 			Email string `json:"email"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-			fmt.Printf("JSON decode error: %v\n", err)
+			log.Printf("JSON decode error: %v\n", err)
 			http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 			return
 		}
 		name, email = data.Name, data.Email
 	} else {
 		if err := r.ParseForm(); err != nil {
-			fmt.Printf("Form parse error: %v\n", err)
+			log.Printf("Form parse error: %v\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		name = r.FormValue("name")
 		email = r.FormValue("email")
 	}
-
-	fmt.Printf("Received name: %s, email: %s\n", name, email)
 
 	if name == "" || email == "" {
 		http.Error(w, "Name and email are required", http.StatusBadRequest)
@@ -44,7 +41,7 @@ func AddUserToWaitlist(w http.ResponseWriter, r *http.Request, storage *store.Po
 
 	err := storage.CreateWaitlist(name, email)
 	if err != nil {
-		fmt.Printf("CreateWaitlist error: %v\n", err)
+		log.Printf("CreateWaitlist error: %v\n", err)
 		http.Error(w, "Error adding to waitlist", http.StatusInternalServerError)
 		return
 	}
