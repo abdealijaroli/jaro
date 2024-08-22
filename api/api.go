@@ -8,6 +8,8 @@ import (
 	"github.com/abdealijaroli/jaro/store"
 )
 
+
+
 func AddUserToWaitlist(w http.ResponseWriter, r *http.Request, storage *store.PostgresStore) {
 	var name, email string
 

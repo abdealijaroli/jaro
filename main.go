@@ -6,6 +6,7 @@ import (
 
 	"github.com/a-h/templ"
 
+	// "github.com/abdealijaroli/jaro/auth"
 	"github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
 	"github.com/abdealijaroli/jaro/store"
@@ -30,11 +31,13 @@ func main() {
 	fs := http.FileServer(http.Dir("web"))
 	http.Handle("/", fs)
 
-	http.Handle("/hello", templ.Handler(components.Hello("abdeali", "click me")))
+	http.Handle("/hello", templ.Handler(components.Hello("hi", "click me")))
 
 	http.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
 		api.AddUserToWaitlist(w, r, storage)
 	})
+	// http.HandleFunc("/shorten", auth.AuthMiddleware(api.ShortenURL))
+	// http.HandleFunc("/transfer", auth.AuthMiddleware(api.TransferFile))
 
 	cmd.Execute()
 
