@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -17,15 +18,12 @@ func main() {
 	// db init
 	storage, err := store.NewPostgresStore()
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
-		return
+		log.Fatalf("Error connecting to database: %v", err)
 	}
 	defer storage.Close()
 
-	err = storage.Init()
-	if err != nil {
-		fmt.Println("Error initializing database:", err)
-		return
+	if err := storage.Init(); err != nil {
+		log.Fatalf("Error initializing database: %v", err)
 	}
 
 	fs := http.FileServer(http.Dir("web"))
@@ -33,7 +31,7 @@ func main() {
 
 	http.Handle("/hello", templ.Handler(components.Hello("hi", "click me")))
 
-	http.HandleFunc("/signup", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("POST /signup", func(w http.ResponseWriter, r *http.Request) {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 	// http.HandleFunc("/shorten", auth.AuthMiddleware(api.ShortenURL))

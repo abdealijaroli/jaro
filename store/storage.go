@@ -31,7 +31,7 @@ func NewPostgresStore() (*PostgresStore, error) {
 
 	connStr := os.Getenv("DB_URL")
 	fmt.Println("Connecting to db")
-	
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database connection: %w", err)
@@ -46,17 +46,16 @@ func NewPostgresStore() (*PostgresStore, error) {
 }
 
 func (s *PostgresStore) Init() error {
-	if err := s.CreateAccountTable(); err != nil {
-		return err
-	}
-	if err := s.CreateShortURLTable(); err != nil {
-		return err
-	}
-	if err := s.CreateWaitlistTable(); err != nil {
-		return err
+	for _, initFunc := range []func() error{
+		s.CreateAccountTable,
+		s.CreateShortURLTable,
+		s.CreateWaitlistTable,
+	} {
+		if err := initFunc(); err != nil {
+			return fmt.Errorf("initialization error: %w", err)
+		}
 	}
 	return nil
-
 }
 
 func (s *PostgresStore) Close() error {
