@@ -26,22 +26,23 @@ type PostgresStore struct {
 
 func NewPostgresStore() (*PostgresStore, error) {
 	if err := godotenv.Load(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading .env file: %w", err)
 	}
 
 	connStr := os.Getenv("DB_URL")
+	fmt.Println("Connecting to db")
+	
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error opening database connection: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error pinging database: %w", err)
 	}
 
-	return &PostgresStore{
-		db: db,
-	}, nil
+	fmt.Println("Successfully connected to the database")
+	return &PostgresStore{db: db}, nil
 }
 
 func (s *PostgresStore) Init() error {
@@ -104,7 +105,6 @@ func (s *PostgresStore) CreateWaitlistTable() error {
 func (s *PostgresStore) CreateWaitlist(name, email string) error {
 	query := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
 	_, err := s.db.Exec(query, name, email, time.Now())
-	fmt.Println("CreateWaitlist", err)
 	return err
 }
 
