@@ -102,8 +102,8 @@ func (s *PostgresStore) CreateWaitlistTable() error {
 }
 
 func (s *PostgresStore) CreateWaitlist(name, email string) error {
-	query := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(query, name, email, time.Now())
+	insertQuery := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(insertQuery, name, email, time.Now())
 	return err
 }
 
