@@ -3,3 +3,4 @@ main
 .bin
 .env
 todo.txt
+*.pem
