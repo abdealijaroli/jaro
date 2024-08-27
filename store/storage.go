@@ -107,9 +107,9 @@ func (s *PostgresStore) CreateWaitlist(name, email string) error {
 	return err
 }
 
-func (s *PostgresStore) CreateShortURL(accountID int, originalURL string) error {
-	query := `INSERT INTO short_urls (account_id, original_url, short_url, created_at) VALUES ($1, $2, $3, $4)`
-	_, err := s.db.Exec(query, accountID, originalURL, time.Now())
+func (s *PostgresStore) CreateShortURL(originalURL, shortURL string) error {
+	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3, $4)`
+	_, err := s.db.Exec(query, originalURL, shortURL, time.Now())
 	return err
 }
 

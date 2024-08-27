@@ -10,15 +10,12 @@ import (
 	"github.com/abdealijaroli/jaro/store"
 )
 
-func ShortenURL(url string, storage *store.PostgresStore) (string, error) {
-	hash := sha256.Sum256([]byte(url))
+func ShortenURL(longURL string, storage *store.PostgresStore) (string, error) {
+	hash := sha256.Sum256([]byte(longURL))
 	shortCode := base64.URLEncoding.EncodeToString(hash[:])[:6]
 	shortURL := fmt.Sprintf("https://jaroli.me/%s", shortCode)
 
-	err := storage.CreateShortURL(url, shortCode)
-	if err != nil {
-		return "", err
-	}
+	storage.CreateShortURL(longURL, shortCode)
 
 	qr, err := qrcode.New(shortURL, qrcode.Medium)
 	if err != nil {
