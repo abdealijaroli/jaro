@@ -15,7 +15,7 @@ func ShortenURL(longURL string, storage *store.PostgresStore) (string, error) {
 	shortCode := base64.URLEncoding.EncodeToString(hash[:])[:6]
 	shortURL := fmt.Sprintf("https://jaroli.me/%s", shortCode)
 
-	storage.CreateShortURL(longURL, shortCode)
+	storage.AddShortURLToDB(longURL, shortCode)
 
 	qr, err := qrcode.New(shortURL, qrcode.Medium)
 	if err != nil {

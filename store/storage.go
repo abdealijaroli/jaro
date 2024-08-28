@@ -81,7 +81,6 @@ func (s *PostgresStore) CreateAccountTable() error {
 func (s *PostgresStore) CreateShortURLTable() error {
 	query := `CREATE TABLE IF NOT EXISTS short_urls (
 		id SERIAL PRIMARY KEY,
-		account_id INTEGER REFERENCES accounts(id),
 		original_url VARCHAR(255),
 		short_url VARCHAR(10) UNIQUE,	
 		created_at TIMESTAMP
@@ -107,24 +106,23 @@ func (s *PostgresStore) CreateWaitlist(name, email string) error {
 	return err
 }
 
-func (s *PostgresStore) CreateShortURL(originalURL, shortURL string) error {
-	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3, $4)`
+func (s *PostgresStore) AddShortURLToDB(originalURL, shortURL string) error {
+	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3)`
 	_, err := s.db.Exec(query, originalURL, shortURL, time.Now())
 	return err
 }
 
-func (s *PostgresStore) GetOriginalURL(shortURL string) (string, int, error) {
+func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
 	var originalURL string
-	var accountID int
-	query := `SELECT original_url, account_id FROM short_urls WHERE short_url = $1`
-	err := s.db.QueryRow(query, shortURL).Scan(&originalURL, &accountID)
+	query := `SELECT original_url FROM short_urls WHERE short_url = $1`
+	err := s.db.QueryRow(query, shortURL).Scan(&originalURL)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return "", 0, fmt.Errorf("short URL not found")
+			return "", fmt.Errorf("short URL not found")
 		}
-		return "", 0, err
+		return "", err
 	}
-	return originalURL, accountID, nil
+	return originalURL, nil
 }
 
 func (s *PostgresStore) CreateAccount(acc *types.Account) error {
