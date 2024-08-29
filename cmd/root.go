@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"log"
 
 	"github.com/spf13/cobra"
 
@@ -20,17 +19,17 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		storage, err := store.NewPostgresStore()
 		if err != nil {
-			log.Fatalf("Error connecting to database: %v", err)
+			fmt.Printf("Error connecting to database: %v", err)
 		}
 		defer storage.Close()
 
 		if shortenURL != "" {
 			shortened, err := ShortenURL(shortenURL, storage)
 			if err != nil {
-				fmt.Println("Error shortening URL:", err)
+				fmt.Println("Error shortening link: ", err)
 				return
 			}
-			fmt.Printf("Your sweetened URL :) => %s\n", shortened)
+			fmt.Printf("Your sweetened link: %s\n", shortened)
 		} else if transferFile != "" {
 			fmt.Printf("Transferring file: %s\n", transferFile)
 		} else {
@@ -40,7 +39,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	rootCmd.Flags().StringVarP(&shortenURL, "shorten", "s", "", "URL to shorten")
+	rootCmd.Flags().StringVarP(&shortenURL, "shorten", "s", "", "Link to shorten")
 	rootCmd.Flags().StringVarP(&transferFile, "transfer", "t", "", "File to transfer")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
