@@ -1,44 +1,42 @@
 package main
 
 import (
-	// "fmt"
-	// "log"
-	// "net/http"
+	"log"
+	"net/http"
 
-	// "github.com/a-h/templ"
-
-	// // "github.com/abdealijaroli/jaro/auth"
-	// "github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
-	// "github.com/abdealijaroli/jaro/store"
-	// "github.com/abdealijaroli/jaro/web/components"
+	"github.com/abdealijaroli/jaro/store"
 )
 
 func main() {
-	// db init
-	// storage, err := store.NewPostgresStore()
-	// if err != nil {
-	// 	log.Fatalf("Error connecting to database: %v", err)
-	// }
-	// defer storage.Close()
+	storage, err := store.NewPostgresStore()
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+	defer storage.Close()
 
-	// if err := storage.Init(); err != nil {
-	// 	log.Fatalf("Error initializing database: %v", err)
-	// }
+	if err := storage.Init(); err != nil {
+		log.Fatalf("Error initializing database: %v", err)
+	}
 
-	// fs := http.FileServer(http.Dir("web"))
-	// http.Handle("/", fs)
+	fs := http.FileServer(http.Dir("web"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// http.Handle("/hello", templ.Handler(components.Hello("hi", "click me")))
-
-	// http.HandleFunc("POST /signup", func(w http.ResponseWriter, r *http.Request) {
-	// 	api.AddUserToWaitlist(w, r, storage)
-	// })
-	// http.HandleFunc("/shorten", auth.AuthMiddleware(api.ShortenURL))
-	// http.HandleFunc("/transfer", auth.AuthMiddleware(api.TransferFile))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		shortCode := r.URL.Path[1:]
+		if shortCode == "" {
+			http.ServeFile(w, r, "web/index.html")
+			return
+		}
+		originalURL, err := storage.GetOriginalURL(shortCode)
+		if err != nil {
+			http.Error(w, "four oh four - not found :(", http.StatusNotFound)
+			return
+		}
+		http.Redirect(w, r, originalURL, http.StatusFound)
+	})
 
 	cmd.Execute()
 
-	// fmt.Println("Server is running on port 8008")
-	// http.ListenAndServe(":8008", nil)
+	http.ListenAndServe(":8008", nil)
 }
