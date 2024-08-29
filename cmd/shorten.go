@@ -22,7 +22,7 @@ func ShortenURL(longURL string, storage *store.PostgresStore) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("QR Code:")
+	fmt.Println("QR Code for your short link:")
 	fmt.Println(qr.ToSmallString(false))
 
 	return shortURL, nil
