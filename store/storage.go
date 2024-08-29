@@ -30,7 +30,6 @@ func NewPostgresStore() (*PostgresStore, error) {
 	}
 
 	connStr := os.Getenv("DB_URL")
-	fmt.Println("Connecting to db")
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -41,7 +40,6 @@ func NewPostgresStore() (*PostgresStore, error) {
 		return nil, fmt.Errorf("error pinging database: %w", err)
 	}
 
-	fmt.Println("Successfully connected to the database")
 	return &PostgresStore{db: db}, nil
 }
 
