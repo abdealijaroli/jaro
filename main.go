@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,8 +20,8 @@ func main() {
 		log.Fatalf("Error initializing database: %v", err)
 	}
 
-	fs := http.FileServer(http.Dir("web"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("web/public"))
+	http.Handle("/public/", http.StripPrefix("/public/", fs))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		shortCode := r.URL.Path[1:]
@@ -38,5 +39,6 @@ func main() {
 
 	cmd.Execute()
 
+	fmt.Println("Server running on :8008")
 	http.ListenAndServe(":8008", nil)
 }
