@@ -30,10 +30,13 @@ var rootCmd = &cobra.Command{
 				return
 			}
 			fmt.Printf("Your sweetened link: %s\n", shortened)
+			return
 		} else if transferFile != "" {
 			fmt.Printf("Transferring file: %s\n", transferFile)
+			return
 		} else {
-			fmt.Println("Please provide a valid option")
+			fmt.Println("Please provide a valid option. Run 'jaro --help' for more information.")
+			return
 		}
 	},
 }

@@ -38,5 +38,5 @@ func main() {
 
 	cmd.Execute()
 
-	http.ListenAndServe(":8008", nil)
+	// http.ListenAndServe(":8008", nil)
 }

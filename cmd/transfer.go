@@ -10,7 +10,7 @@ var transferCmd = &cobra.Command{
 	Short: "Transfer a file",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			fmt.Println("Please provide a file to transfer")
+			fmt.Println("Please provide a file to transfer. Run 'jaro --help' for more information.")
 			return
 		}
 		file := args[0]
