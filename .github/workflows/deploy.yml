@@ -31,6 +31,6 @@ jobs:
           push: true
           tags: abdealijaroli/jaro:latest
 
-      - name: Deploy to server
-        run: |
-              ssh -i ${{ secrets.SERVER_SSH_KEY }} -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker pull abdealijaroli/jaro:latest && docker run -d -p 8008:8008 abdealijaroli/jaro:latest"
+      # - name: Deploy to server
+      #   run: |
+      #         ssh -i ${{ secrets.SERVER_SSH_KEY }} -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker pull abdealijaroli/jaro:latest && docker run -d -p 8008:8008 abdealijaroli/jaro:latest"

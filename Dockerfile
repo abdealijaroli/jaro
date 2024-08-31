@@ -5,6 +5,7 @@ WORKDIR /app
 LABEL maintainer="Abdeali Jaroli <abdeali@jaro.li>"
 
 COPY go.mod go.sum ./
+
 RUN go mod download
 
 COPY . .
@@ -16,6 +17,8 @@ FROM alpine:latest
 WORKDIR /root/
 
 COPY --from=builder /app/jaro .
+
+ENV DB_URL="add-your-own-db-url"
 
 EXPOSE 8008
 

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/abdealijaroli/jaro/types"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -25,10 +24,6 @@ type PostgresStore struct {
 }
 
 func NewPostgresStore() (*PostgresStore, error) {
-	if err := godotenv.Load(); err != nil {
-		return nil, fmt.Errorf("error loading .env file: %w", err)
-	}
-
 	connStr := os.Getenv("DB_URL")
 
 	db, err := sql.Open("postgres", connStr)
