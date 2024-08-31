@@ -19,8 +19,9 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -32,4 +33,4 @@ jobs:
 
       - name: Deploy to server
         run: |
-              ssh -i ${{ secrets.SERVER_SSH_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker pull abdealijaroli/jaro:latest && docker run -d -p 8008:8008 abdealijaroli/jaro:latest"
+              ssh -i ${{ secrets.SERVER_SSH_KEY }} -v ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "docker pull abdealijaroli/jaro:latest && docker run -d -p 8008:8008 abdealijaroli/jaro:latest"
