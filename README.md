@@ -18,7 +18,7 @@ The application inside this container reads its configuration from a single envi
 ## Run
 To run the Jaro application, use the following command, replacing the `DB_URL` with your actual PostgreSQL connection string:
 ```
-docker run -e DB_URL=postgresql://user:password@host:port/dbname abdealijaroli/jaro:latest
+docker run -e DB_URL=postgresql://user:password@host:port/dbname -p 8008:8008 abdealijaroli/jaro:latest
 ```
 
 ## Features
