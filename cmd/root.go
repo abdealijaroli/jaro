@@ -10,7 +10,7 @@ import (
 )
 
 var shortenURL string
-var transferFile string
+var fileToTransfer string
 
 var rootCmd = &cobra.Command{
 	Use:   "jaro",
@@ -31,8 +31,8 @@ var rootCmd = &cobra.Command{
 			}
 			fmt.Printf("Your sweetened link: %s\n", shortened)
 			return
-		} else if transferFile != "" {
-			fmt.Printf("Transferring file: %s\n", transferFile)
+		} else if fileToTransfer != "" {
+			fmt.Printf("Transferring file: %s\n", fileToTransfer)
 			return
 		} else {
 			fmt.Println("Please provide a valid option. Run 'jaro --help' for more information.")
@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.Flags().StringVarP(&shortenURL, "shorten", "s", "", "Link to shorten")
-	rootCmd.Flags().StringVarP(&transferFile, "transfer", "t", "", "File to transfer")
+	rootCmd.Flags().StringVarP(&fileToTransfer, "transfer", "t", "", "File to transfer")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
