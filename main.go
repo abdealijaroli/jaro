@@ -42,7 +42,7 @@ func main() {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 
-	cmd.Execute()
+	go cmd.Execute()
 
 	fmt.Println("Server running on :8008")
 	http.ListenAndServe(":8008", nil)
