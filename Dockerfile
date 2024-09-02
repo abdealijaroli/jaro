@@ -1,27 +1,30 @@
-# Stage 1: Build the Go binary
-FROM golang:1.22.3 AS builder
+FROM golang:1.20 AS builder
 
 WORKDIR /app
 
-LABEL maintainer="Abdeali Jaroli <abdeali@jaro.li>"
-
+# Copy go mod and sum files
 COPY go.mod go.sum ./
-
 RUN go mod download
 
+# Copy source files
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o jaro .
+# Build the Go binary
+RUN go build -o jaro
 
-# Stage 2: Create a lightweight image to run the binary
+# Create a minimal image for running the Go binary
 FROM alpine:latest
 
 WORKDIR /root/
 
+# Copy the Go binary from the builder stage
 COPY --from=builder /app/jaro .
 
-ENV DB_URL="add-your-own-db-url"
+# Copy the web files into the image
+COPY web /root/web
 
+# Expose port 8008
 EXPOSE 8008
 
-CMD ["/root/jaro"]
+# Run the Go binary
+CMD ["./jaro"]
