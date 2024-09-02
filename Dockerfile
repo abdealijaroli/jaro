@@ -29,5 +29,5 @@ ENV DB_URL="add-your-own-db-url"
 
 EXPOSE 8008
 
-# Run the Go binary
-CMD ["/root/jaro"]
+# Run server
+ENTRYPOINT ["/root/jaro"]
