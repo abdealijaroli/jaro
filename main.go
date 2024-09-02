@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
@@ -42,7 +43,10 @@ func main() {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 
-	go cmd.Execute()
+	if len(os.Args) > 1 {
+		cmd.Execute()
+		return
+	}
 
 	fmt.Println("Server running on :8008")
 	http.ListenAndServe(":8008", nil)
