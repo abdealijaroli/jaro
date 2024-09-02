@@ -1,3 +1,4 @@
+# Stage 1: Build the Go binary
 FROM golang:1.22.3 AS builder
 
 WORKDIR /app
@@ -12,6 +13,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o jaro .
 
+# Stage 2: Create a lightweight image to run the binary
 FROM alpine:latest
 
 WORKDIR /root/
