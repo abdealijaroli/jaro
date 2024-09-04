@@ -5,14 +5,19 @@ import (
 	"github.com/skip2/go-qrcode"
 	"github.com/spf13/cobra"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"sync"
 )
+
+var serverPort = ":8080"
+var wg sync.WaitGroup
 
 func transferFile(filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Printf("Error opening file: %v\n", err)
+		log.Printf("Error opening file: %v\n", err)
 		return
 	}
 	defer file.Close()
@@ -22,7 +27,7 @@ func transferFile(filePath string) {
 
 	qr, err := qrcode.New(shortURL, qrcode.Medium)
 	if err != nil {
-		fmt.Printf("Error generating QR code: %v\n", err)
+		log.Printf("Error generating QR code: %v\n", err)
 		return
 	}
 
@@ -30,30 +35,32 @@ func transferFile(filePath string) {
 	fmt.Println("QR Code for your link:")
 	fmt.Println(qr.ToSmallString(false))
 
+	wg.Add(1)
 	go startFileServer(shortCode, file)
 }
 
 func startFileServer(shortCode string, file *os.File) {
+	defer wg.Done()
+
 	http.HandleFunc("/"+shortCode, func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "<h1>File Transfer</h1>")
-		fmt.Fprintf(w, "<p>Sender: %s</p>", "SenderName")
-		fmt.Fprintf(w, "<p>File: %s</p>", file.Name())
-		fmt.Fprintf(w, "<form method='POST' action='/accept/%s'><button type='submit'>Accept</button></form>", shortCode)
+		http.ServeFile(w, r, file.Name())
 	})
 
 	http.HandleFunc("/accept/"+shortCode, func(w http.ResponseWriter, r *http.Request) {
 		transferToRecipient(w, file)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	log.Printf("Starting file server on port %s\n", serverPort)
+	if err := http.ListenAndServe(serverPort, nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
 
 func transferToRecipient(w http.ResponseWriter, file *os.File) {
 	w.Header().Set("Content-Disposition", "attachment; filename="+file.Name())
 	w.Header().Set("Content-Type", "application/octet-stream")
 
-	_, err := io.Copy(w, file)
-	if err != nil {
+	if _, err := io.Copy(w, file); err != nil {
 		http.Error(w, "Error transferring file", http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +69,8 @@ func transferToRecipient(w http.ResponseWriter, file *os.File) {
 }
 
 func generateShortCode(filePath string) string {
-	return ""
+	// Simple short code generation logic (e.g., using the file name)
+	return filePath[len(filePath)-6:] // Example: last 6 characters of the file name
 }
 
 var transferCmd = &cobra.Command{
@@ -70,7 +78,7 @@ var transferCmd = &cobra.Command{
 	Short: "Transfer a file",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			fmt.Println("Please provide a file to transfer. Run 'jaro --help' for more information.")
+			log.Println("Please provide a file to transfer. Run 'jaro --help' for more information.")
 			return
 		}
 		filePath := args[0]
