@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/abdealijaroli/jaro/store"
 	"github.com/skip2/go-qrcode"
 	"github.com/spf13/cobra"
 	"io"
@@ -10,6 +12,21 @@ import (
 	"os"
 	"sync"
 )
+
+func InitiateTransfer(w http.ResponseWriter, r *http.Request, storage *store.PostgresStore) {
+	// Parse the request body
+	var req struct {
+		FilePath string `json:"filePath"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	// Handle WebSocket connections
+}
 
 var serverPort = ":8080"
 var wg sync.WaitGroup
