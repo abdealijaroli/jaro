@@ -3,14 +3,16 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/abdealijaroli/jaro/store"
-	"github.com/skip2/go-qrcode"
-	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"sync"
+
+	"github.com/skip2/go-qrcode"
+	"github.com/spf13/cobra"
+
+	"github.com/abdealijaroli/jaro/store"
 )
 
 func InitiateTransfer(w http.ResponseWriter, r *http.Request, storage *store.PostgresStore) {
