@@ -6,3 +6,19 @@ todo.txt
 *.pem
 jaro
 .vscode
+
+# file types
+*.mp3
+*.mp4
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.ico
+*.wav
+*.avi
+*.mov
+*.mkv
