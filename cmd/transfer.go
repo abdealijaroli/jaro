@@ -1,37 +1,18 @@
 package cmd
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
-	"io"
+	// "io"
 	"log"
-	"net/http"
+	// "net/http"
 	"os"
-	"sync"
+	// "sync"
 
 	"github.com/skip2/go-qrcode"
 	"github.com/spf13/cobra"
-
-	"github.com/abdealijaroli/jaro/store"
+	// "github.com/abdealijaroli/jaro/store"
 )
-
-func InitiateTransfer(w http.ResponseWriter, r *http.Request, storage *store.PostgresStore) {
-	// Parse the request body
-	var req struct {
-		FilePath string `json:"filePath"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
-func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Handle WebSocket connections
-}
-
-var serverPort = ":8080"
-var wg sync.WaitGroup
 
 func transferFile(filePath string) {
 	file, err := os.Open(filePath)
@@ -41,7 +22,7 @@ func transferFile(filePath string) {
 	}
 	defer file.Close()
 
-	shortCode := generateShortCode(filePath)
+	shortCode := GenerateShortCode(filePath)
 	shortURL := fmt.Sprintf("https://jaroli.me/%s", shortCode)
 
 	qr, err := qrcode.New(shortURL, qrcode.Medium)
@@ -50,46 +31,10 @@ func transferFile(filePath string) {
 		return
 	}
 
-	fmt.Printf("Your shareable file link is: %s\n", shortURL)
-	fmt.Println("QR Code for your link:")
+	fmt.Println("QR Code for your shareable file link: ")
 	fmt.Println(qr.ToSmallString(false))
 
-	wg.Add(1)
-	go startFileServer(shortCode, file)
-}
-
-func startFileServer(shortCode string, file *os.File) {
-	defer wg.Done()
-
-	http.HandleFunc("/"+shortCode, func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, file.Name())
-	})
-
-	http.HandleFunc("/accept/"+shortCode, func(w http.ResponseWriter, r *http.Request) {
-		transferToRecipient(w, file)
-	})
-
-	log.Printf("Starting file server on port %s\n", serverPort)
-	if err := http.ListenAndServe(serverPort, nil); err != nil {
-		log.Fatalf("Server failed: %v", err)
-	}
-}
-
-func transferToRecipient(w http.ResponseWriter, file *os.File) {
-	w.Header().Set("Content-Disposition", "attachment; filename="+file.Name())
-	w.Header().Set("Content-Type", "application/octet-stream")
-
-	if _, err := io.Copy(w, file); err != nil {
-		http.Error(w, "Error transferring file", http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Fprintln(w, "File delivered successfully.")
-}
-
-func generateShortCode(filePath string) string {
-	// Simple short code generation logic (e.g., using the file name)
-	return filePath[len(filePath)-6:] // Example: last 6 characters of the file name
+	fmt.Printf("Your shareable file link is: %s\n", shortURL)
 }
 
 var transferCmd = &cobra.Command{

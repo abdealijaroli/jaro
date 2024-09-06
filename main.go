@@ -48,13 +48,6 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("POST /transfer", func(w http.ResponseWriter, r *http.Request) {
-		cmd.InitiateTransfer(w, r, storage)
-	})
-
-	// Add WebSocket handler for signaling
-	http.HandleFunc("/ws", cmd.HandleWebSocket)
-
 	fmt.Println("Server running on :8008")
 	http.ListenAndServe(":8008", nil)
 }
