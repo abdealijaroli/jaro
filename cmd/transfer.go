@@ -14,7 +14,7 @@ import (
 	// "github.com/abdealijaroli/jaro/store"
 )
 
-func transferFile(filePath string) {
+func TransferFile(filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Printf("Error opening file: %v\n", err)
@@ -47,7 +47,7 @@ var transferCmd = &cobra.Command{
 		}
 		filePath := args[0]
 
-		transferFile(filePath)
+		TransferFile(filePath)
 	},
 }
 

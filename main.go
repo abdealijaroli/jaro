@@ -43,9 +43,14 @@ func main() {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 
+	// http.HandleFunc("POST /transfer", func(w http.ResponseWriter, r *http.Request) {
+	// 	cmd.TransferFile(w, r, storage)
+	// })
+
+	// http.HandleFunc("/ws", cmd.HandleWebSocket)
+
 	if len(os.Args) > 1 {
 		cmd.Execute()
-		return
 	}
 
 	fmt.Println("Server running on :8008")
