@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+type FileTransfer struct {
+	ID               int       `json:"id"`
+	OriginalFilePath string    `json:"originalFilePath"`
+	ShortURL         string    `json:"shortUrl"`
+	CreatedAt        time.Time `json:"createdAt"`
+}
+
 type Account struct {
 	ID           int       `json:"id"`
 	Name         string    `json:"name"`
