@@ -93,6 +93,12 @@ func (s *PostgresStore) CreateWaitlistTable() error {
 	return err
 }
 
+func (s *PostgresStore) AddTransfer(originalFilePath, shortURL string) error {
+	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(query, originalFilePath, shortURL, time.Now())
+	return err
+}
+
 func (s *PostgresStore) CreateWaitlist(name, email string) error {
 	insertQuery := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
 	_, err := s.db.Exec(insertQuery, name, email, time.Now())
