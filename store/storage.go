@@ -75,39 +75,17 @@ func (s *PostgresStore) CreateShortURLTable() error {
 	query := `CREATE TABLE IF NOT EXISTS short_urls (
 		id SERIAL PRIMARY KEY,
 		original_url VARCHAR(255),
-		short_url VARCHAR(10) UNIQUE,	
+		short_url VARCHAR(10) UNIQUE,
+		is_file_transfer BOOLEAN DEFAULT FALSE,
 		created_at TIMESTAMP
 	)`
 	_, err := s.db.Exec(query)
 	return err
 }
 
-func (s *PostgresStore) CreateWaitlistTable() error {
-	query := `CREATE TABLE IF NOT EXISTS waitlist (
-		id SERIAL PRIMARY KEY,
-		name VARCHAR(50),
-		email VARCHAR(50),
-		created_at TIMESTAMP
-	)`
-	_, err := s.db.Exec(query)
-	return err
-}
-
-func (s *PostgresStore) AddTransfer(originalFilePath, shortURL string) error {
-	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(query, originalFilePath, shortURL, time.Now())
-	return err
-}
-
-func (s *PostgresStore) CreateWaitlist(name, email string) error {
-	insertQuery := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(insertQuery, name, email, time.Now())
-	return err
-}
-
-func (s *PostgresStore) AddShortURLToDB(originalURL, shortURL string) error {
-	query := `INSERT INTO short_urls (original_url, short_url, created_at) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(query, originalURL, shortURL, time.Now())
+func (s *PostgresStore) AddShortURLToDB(originalURL string, shortURL string, isFileTransfer bool) error {
+	query := `INSERT INTO short_urls (original_url, short_url, is_file_transfer, created_at) VALUES ($1, $2, $3, $4)`
+	_, err := s.db.Exec(query, originalURL, shortURL, isFileTransfer, time.Now())
 	return err
 }
 
@@ -122,6 +100,36 @@ func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
 		return "", err
 	}
 	return originalURL, nil
+}
+
+func (s *PostgresStore) CheckFileTransfer(shortURL string) (bool, error) {
+	var isFileTransfer bool
+	query := `SELECT is_file_transfer FROM short_urls WHERE short_url = $1`
+	err := s.db.QueryRow(query, shortURL).Scan(&isFileTransfer)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, fmt.Errorf("short URL not found")
+		}
+		return false, err
+	}
+	return isFileTransfer, nil
+}
+
+func (s *PostgresStore) CreateWaitlistTable() error {
+	query := `CREATE TABLE IF NOT EXISTS waitlist (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(50),
+		email VARCHAR(50),
+		created_at TIMESTAMP
+	)`
+	_, err := s.db.Exec(query)
+	return err
+}
+
+func (s *PostgresStore) CreateWaitlist(name, email string) error {
+	insertQuery := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(insertQuery, name, email, time.Now())
+	return err
 }
 
 func (s *PostgresStore) CreateAccount(acc *types.Account) error {
