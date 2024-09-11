@@ -115,7 +115,16 @@
         }
 
         h1 {
+            text-align: center;
             font-size: 2.5rem;
+            margin: 0 auto;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
         }
 
         h2 {
@@ -230,7 +239,7 @@
     <main>
         <section id="hero" class="container">
             <div>
-                <h1 style="text-align: center;">✨ URL Shortener + P2P File Sharing for Devs ✨</h1>
+                <h1>✨ URL Shortener + P2P File Sharing for Devs ✨</h1>
                 <br>
                 <p>
                     Jaro is a powerful (hopefully) URL shortener and P2P file
