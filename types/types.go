@@ -4,13 +4,6 @@ import (
 	"time"
 )
 
-type FileTransfer struct {
-	ID               int       `json:"id"`
-	OriginalFilePath string    `json:"originalFilePath"`
-	ShortURL         string    `json:"shortUrl"`
-	CreatedAt        time.Time `json:"createdAt"`
-}
-
 type Account struct {
 	ID           int       `json:"id"`
 	Name         string    `json:"name"`
@@ -22,11 +15,12 @@ type Account struct {
 }
 
 type ShortURL struct {
-	ID          int       `json:"id"`
-	AccountID   int       `json:"accountId"`
-	OriginalURL string    `json:"originalUrl"`
-	ShortURL    string    `json:"shortUrl"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID             int       `json:"id"`
+	AccountID      int       `json:"accountId"`
+	OriginalURL    string    `json:"originalUrl"`
+	ShortURL       string    `json:"shortUrl"`
+	IsFileTransfer bool      `json:"isFileTransfer"`
+	CreatedAt      time.Time `json:"createdAt"`
 }
 
 func GenerateNewAccount(name, email, originalURL string) *Account {
