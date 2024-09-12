@@ -86,7 +86,11 @@ func (s *PostgresStore) CreateShortURLTable() error {
 func (s *PostgresStore) AddShortURLToDB(originalURL string, shortURL string, isFileTransfer bool) error {
 	query := `INSERT INTO short_urls (original_url, short_url, is_file_transfer, created_at) VALUES ($1, $2, $3, $4)`
 	_, err := s.db.Exec(query, originalURL, shortURL, isFileTransfer, time.Now())
-	return err
+	if err != nil {
+		fmt.Printf("Error adding short URL to DB: %v\n", err)
+		return err
+	}
+	return nil
 }
 
 func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
@@ -97,6 +101,7 @@ func (s *PostgresStore) GetOriginalURL(shortURL string) (string, error) {
 		if err == sql.ErrNoRows {
 			return "", fmt.Errorf("short URL not found")
 		}
+		fmt.Printf("Error retrieving original URL: %v\n", err)
 		return "", err
 	}
 	return originalURL, nil
