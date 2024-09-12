@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -36,6 +35,15 @@ func main() {
 			http.Error(w, "four oh four - not found :(", http.StatusNotFound)
 			return
 		}
+		isFileTransfer, err := storage.CheckFileTransfer(shortCode)
+		if err != nil {
+			http.Error(w, "four oh four - not found :(", http.StatusNotFound)
+			return
+		}
+		if isFileTransfer {
+			http.ServeFile(w, r, "web/receiver.html")
+			return
+		}
 		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
@@ -53,6 +61,6 @@ func main() {
 		cmd.Execute()
 	}
 
-	fmt.Println("Server running on :8008")
+	log.Println("Server running on :8008")
 	http.ListenAndServe(":8008", nil)
 }
