@@ -37,7 +37,7 @@ func startFileTransfer(filePath string, roomID string, store *store.PostgresStor
 		return
 	}
 
-	// add file to store
+	// add file name and short url mapping to store
 	err = store.AddShortURLToDB(fileInfo.Name(), roomID, true)
 	if err != nil {
 		fmt.Printf("Error getting file info: %v\n", err)
@@ -63,6 +63,7 @@ func sendFile(file *os.File, fileInfo os.FileInfo, dataChannel *webrtc.DataChann
 	dataChannel.Send([]byte(metadata))
 
 	reader := bufio.NewReader(file)
+	
 	var wg sync.WaitGroup
 	chunks := make(chan []byte, 100)
 

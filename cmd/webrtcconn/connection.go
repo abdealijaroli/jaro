@@ -26,7 +26,7 @@ func CreatePeerConnection() *webrtc.PeerConnection {
 }
 
 func HandleSignaling(pc *webrtc.PeerConnection, roomID string) {
-	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/ws", nil)
+	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8008/ws", nil)
 	if err != nil {
 		log.Fatalf("Failed to connect to signaling server: %v", err)
 	}
