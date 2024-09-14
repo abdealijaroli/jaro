@@ -109,8 +109,12 @@
         const roomID = new URLSearchParams(window.location.search).get('room');
 
         function startReceiving() {
-            const ws = new WebSocket('ws://localhost:8080/ws');
+            const ws = new WebSocket('ws://localhost:8008/ws');
             const pc = new RTCPeerConnection();
+            
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: 'join', room: roomID }));
+            };
 
             ws.onmessage = (message) => {
                 const msg = JSON.parse(message.data);

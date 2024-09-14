@@ -51,10 +51,6 @@ func main() {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 
-	// http.HandleFunc("POST /transfer", func(w http.ResponseWriter, r *http.Request) {
-	// 	cmd.TransferFile(w, r, storage)
-	// })
-
 	// http.HandleFunc("/ws", cmd.HandleWebSocket)
 
 	if len(os.Args) > 1 {
