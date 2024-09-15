@@ -27,7 +27,7 @@ var highestChunkReceived uint32
 
 func receiveFile(dataChannel *webrtc.DataChannel) {
 	var file *os.File
-	var fileSize int64
+	var fileSize int64 // needed? how?
 	var receivedSize int64
 	var chunks map[uint32][]byte
 	var mu sync.Mutex
