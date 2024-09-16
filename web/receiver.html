@@ -111,9 +111,13 @@
         function startReceiving() {
             const ws = new WebSocket('ws://localhost:8008/ws');
             const pc = new RTCPeerConnection();
-            
+
             ws.onopen = () => {
-                ws.send(JSON.stringify({ type: 'join', room: roomID }));
+                if (roomID) {
+                    ws.send(JSON.stringify({ type: 'join', room: roomID }));
+                } else {
+                    console.error("Room ID is not defined.");
+                }
             };
 
             ws.onmessage = (message) => {
@@ -140,13 +144,10 @@
                     if (typeof data === 'string') {
                         console.log('File metadata:', data);
                     } else {
-                        // Handle file data chunks here
                         console.log('Received file chunk');
                     }
                 };
             };
-
-            ws.send(JSON.stringify({ type: 'join', room: roomID }));
         }
 
         window.onload = startReceiving;
