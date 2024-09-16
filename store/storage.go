@@ -84,7 +84,9 @@ func (s *PostgresStore) CreateShortURLTable() error {
 }
 
 func (s *PostgresStore) AddShortURLToDB(originalURL string, shortURL string, isFileTransfer bool) error {
-	query := `INSERT INTO short_urls (original_url, short_url, is_file_transfer, created_at) VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO short_urls (original_url, short_url, is_file_transfer, created_at) 
+	          VALUES ($1, $2, $3, $4) 
+	          ON CONFLICT (short_url) DO NOTHING`
 	_, err := s.db.Exec(query, originalURL, shortURL, isFileTransfer, time.Now())
 	if err != nil {
 		fmt.Printf("Error adding short URL to DB: %v\n", err)
