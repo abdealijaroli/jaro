@@ -7,6 +7,7 @@ import (
 
 	"github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
+	"github.com/abdealijaroli/jaro/cmd/signaling"
 	"github.com/abdealijaroli/jaro/store"
 )
 
@@ -51,7 +52,7 @@ func main() {
 		api.AddUserToWaitlist(w, r, storage)
 	})
 
-	// http.HandleFunc("/ws", cmd.HandleWebSocket)
+	signaling.StartSignalingServer()
 
 	if len(os.Args) > 1 {
 		cmd.Execute()
