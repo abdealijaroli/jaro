@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/gorilla/websocket"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
 type Room struct {
@@ -22,16 +22,16 @@ var (
 			return true
 		},
 	}
-	rooms = make(map[string]*Room)
+	rooms   = make(map[string]*Room)
 	roomsMu sync.Mutex
 )
 
 func StartSignalingServer() {
-	http.HandleFunc("/ws", handleWebSocket)
+	http.HandleFunc("/ws", HandleWebSocket)
 	log.Fatal(http.ListenAndServe(":8008", nil))
 }
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -49,6 +49,12 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		var msg map[string]interface{}
 		if err := json.Unmarshal(p, &msg); err != nil {
 			log.Println(err)
+			continue
+		}
+
+		_, ok := msg["room"].(string)
+		if !ok {
+			log.Println("Room ID is missing or not a string")
 			continue
 		}
 
