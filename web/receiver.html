@@ -1,177 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>📩 | Jaro</title>
+        <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --background: hsl(36, 39%, 88%);
+                --foreground: hsl(36, 45%, 15%);
+                --primary: hsl(36, 45%, 70%);
+                --primary-foreground: hsl(36, 45%, 11%);
+                --secondary: hsl(40, 35%, 77%);
+                --secondary-foreground: hsl(36, 45%, 25%);
+                --accent: hsl(36, 64%, 57%);
+                --accent-foreground: hsl(36, 72%, 17%);
+                --destructive: hsl(0, 84%, 37%);
+                --destructive-foreground: hsl(0, 0%, 98%);
+                --muted: hsl(36, 33%, 75%);
+                --muted-foreground: hsl(36, 45%, 25%);
+                --card: hsl(36, 46%, 82%);
+                --card-foreground: hsl(36, 45%, 20%);
+                --popover: hsl(0, 0%, 100%);
+                --popover-foreground: hsl(240, 10%, 3.9%);
+                --border: hsl(36, 45%, 60%);
+                --input: hsl(36, 45%, 60%);
+                --ring: hsl(36, 45%, 30%);
+                --radius: 0rem;
+            }
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📩 | Jaro</title>
-    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"
-        rel="stylesheet" />
-    <style>
-        :root {
-            --background: hsl(36, 39%, 88%);
-            --foreground: hsl(36, 45%, 15%);
-            --primary: hsl(36, 45%, 70%);
-            --primary-foreground: hsl(36, 45%, 11%);
-            --secondary: hsl(40, 35%, 77%);
-            --secondary-foreground: hsl(36, 45%, 25%);
-            --accent: hsl(36, 64%, 57%);
-            --accent-foreground: hsl(36, 72%, 17%);
-            --destructive: hsl(0, 84%, 37%);
-            --destructive-foreground: hsl(0, 0%, 98%);
-            --muted: hsl(36, 33%, 75%);
-            --muted-foreground: hsl(36, 45%, 25%);
-            --card: hsl(36, 46%, 82%);
-            --card-foreground: hsl(36, 45%, 20%);
-            --popover: hsl(0, 0%, 100%);
-            --popover-foreground: hsl(240, 10%, 3.9%);
-            --border: hsl(36, 45%, 60%);
-            --input: hsl(36, 45%, 60%);
-            --ring: hsl(36, 45%, 30%);
-            --radius: 0rem;
-        }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+            body {
+                font-family: "Space Mono", monospace;
+                background-color: var(--background);
+                color: var(--foreground);
+                line-height: 1.5;
+            }
 
-        body {
-            font-family: "Space Mono", monospace;
-            background-color: var(--background);
-            color: var(--foreground);
-            line-height: 1.5;
-        }
+            .container {
+                width: 90%;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+            header {
+                background-color: var(--background);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                padding: 1rem 0;
+                margin-bottom: 1rem;
+            }
 
-        header {
-            background-color: var(--background);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            padding: 1rem 0;
-            margin-bottom: 1rem;
-        }
+            .header-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                text-decoration: none;
+                color: var(--foreground);
+                font-weight: 600;
+                font-size: 1.25rem;
+            }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: var(--foreground);
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
+            .btn {
+                font-family: "Space Mono", monospace;
+                background-color: var(--primary);
+                color: var(--primary-foreground);
+                padding: 0.5rem 1rem;
+                border-radius: var(--radius);
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+            }
 
-        .btn {
-            font-family: "Space Mono", monospace;
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-        }
+            h1 {
+                font-family: "DM Sans", sans-serif;
+                font-weight: 700;
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
 
-        h1 {
-            font-family: "DM Sans", sans-serif;
-            font-weight: 700;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
+            p {
+                font-family: "DM Sans", sans-serif;
+                font-weight: 400;
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+        </style>
+        <script>
+            const roomID = window.location.pathname.substring(1);
 
-        p {
-            font-family: "DM Sans", sans-serif;
-            font-weight: 400;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-    </style>
-    <script>
-        const roomID = new URLSearchParams(window.location.search).get('room');
+            console.log("Room ID:", roomID);
 
-        function startReceiving() {
-            const ws = new WebSocket('ws://localhost:8008/ws');
-            const pc = new RTCPeerConnection();
+            function startReceiving() {
+                const ws = new WebSocket("ws://localhost:8008/ws");
+                const pc = new RTCPeerConnection();
 
-            ws.onopen = () => {
-                if (roomID) {
-                    ws.send(JSON.stringify({ type: 'join', room: roomID }));
-                } else {
-                    console.error("Room ID is not defined.");
-                }
-            };
-
-            ws.onmessage = (message) => {
-                const msg = JSON.parse(message.data);
-                if (msg.type === 'offer') {
-                    pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: msg.sdp }));
-                    pc.createAnswer().then((answer) => {
-                        pc.setLocalDescription(answer);
-                        ws.send(JSON.stringify({ type: 'answer', sdp: answer.sdp }));
-                    });
-                } else if (msg.type === 'answer') {
-                    pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: msg.sdp }));
-                } else if (msg.type === 'ice-candidate') {
-                    pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
-                } else if (msg.type === 'peer-joined') {
-                    console.log('Peer joined');
-                }
-            };
-
-            pc.ondatachannel = (event) => {
-                const dataChannel = event.channel;
-                dataChannel.onmessage = (event) => {
-                    const data = event.data;
-                    if (typeof data === 'string') {
-                        console.log('File metadata:', data);
+                ws.onopen = () => {
+                    if (roomID) {
+                        ws.send(JSON.stringify({ type: "join", room: roomID }));
+                        console.log("Joined room:", roomID);
                     } else {
-                        console.log('Received file chunk');
+                        console.error("Room ID is not defined.");
                     }
                 };
-            };
-        }
 
-        window.onload = startReceiving;
-    </script>
-</head>
+                ws.onmessage = (message) => {
+                    const msg = JSON.parse(message.data);
+                    console.log("Received message:", msg);
+                    if (msg.type === "offer") {
+                        pc.setRemoteDescription(
+                            new RTCSessionDescription({
+                                type: "offer",
+                                sdp: msg.sdp,
+                            })
+                        );
+                        pc.createAnswer().then((answer) => {
+                            pc.setLocalDescription(answer);
+                            ws.send(
+                                JSON.stringify({
+                                    type: "answer",
+                                    sdp: answer.sdp,
+                                })
+                            );
+                        });
+                    } else if (msg.type === "answer") {
+                        pc.setRemoteDescription(
+                            new RTCSessionDescription({
+                                type: "answer",
+                                sdp: msg.sdp,
+                            })
+                        );
+                    } else if (msg.type === "ice-candidate") {
+                        pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+                    } else if (msg.type === "peer-joined") {
+                        console.log("Peer joined");
+                    }
+                };
 
-<body>
-    <header>
-        <div class="container header-content">
-            <a href="/" class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
-                </svg>
-                <span>Jaro</span>
-            </a>
-        </div>
-    </header>
+                pc.ondatachannel = (event) => {
+                    const dataChannel = event.channel;
+                    dataChannel.onmessage = (event) => {
+                        const data = event.data;
+                        if (typeof data === "string") {
+                            console.log("File metadata:", data);
+                        } else {
+                            console.log("Received file chunk");
+                        }
+                    };
+                };
+            }
 
-    <main class="container">
-        <h1>Here's a file for you 📩:</h1>
-        <p>Waiting for your fav file to arrive...</p>
-    </main>
-</body>
+            window.onload = startReceiving;
+        </script>
+    </head>
 
+    <body>
+        <header>
+            <div class="container header-content">
+                <a href="/" class="logo">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"
+                        />
+                    </svg>
+                    <span>Jaro</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="container">
+            <h1>Here's a file for you 📩:</h1>
+            <p>Waiting for your fav file to arrive...</p>
+        </main>
+    </body>
 </html>
