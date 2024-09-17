@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"sync"
 
@@ -52,6 +53,7 @@ func startFileTransfer(filePath string, roomID string, store *store.PostgresStor
 	}
 
 	dataChannel.OnOpen(func() {
+		log.Println("DataChannel opened")
 		sendFile(file, fileInfo, dataChannel)
 	})
 
@@ -59,11 +61,12 @@ func startFileTransfer(filePath string, roomID string, store *store.PostgresStor
 }
 
 func sendFile(file *os.File, fileInfo os.FileInfo, dataChannel *webrtc.DataChannel) {
+	log.Println("Sending file:", fileInfo.Name())
 	metadata := fmt.Sprintf("%s:%d", fileInfo.Name(), fileInfo.Size())
 	dataChannel.Send([]byte(metadata))
 
 	reader := bufio.NewReader(file)
-	
+
 	var wg sync.WaitGroup
 	chunks := make(chan []byte, 100)
 

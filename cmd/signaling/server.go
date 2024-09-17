@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -34,9 +33,11 @@ func StartSignalingServer() {
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("WebSocket upgrade error:", err)
 		return
 	}
+	log.Println("WebSocket connection established")
+
 	defer conn.Close()
 
 	for {
@@ -60,7 +61,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		switch msg["type"] {
 		case "create":
-			handleCreate(conn)
+			handleCreate(conn, msg["room"].(string))
 		case "join":
 			handleJoin(conn, msg["room"].(string))
 		case "offer", "answer", "ice-candidate":
@@ -74,13 +75,14 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleCreate(conn *websocket.Conn) {
-	roomID := uuid.New().String()
+func handleCreate(conn *websocket.Conn, roomID string) {
 	room := &Room{Sender: conn}
 
 	roomsMu.Lock()
 	rooms[roomID] = room
 	roomsMu.Unlock()
+
+	log.Printf("Room created: %s", roomID)
 
 	response := map[string]string{"type": "room-created", "room": roomID}
 	if err := conn.WriteJSON(response); err != nil {
@@ -89,29 +91,36 @@ func handleCreate(conn *websocket.Conn) {
 }
 
 func handleJoin(conn *websocket.Conn, roomID string) {
-	roomsMu.Lock()
-	room, exists := rooms[roomID]
-	roomsMu.Unlock()
+    log.Printf("Attempting to join room: %s", roomID)
 
-	if !exists {
-		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
-		return
-	}
+    roomsMu.Lock()
+    room, exists := rooms[roomID]
+    roomsMu.Unlock()
 
-	room.mu.Lock()
-	defer room.mu.Unlock()
+    if !exists {
+        log.Printf("Room not found: %s", roomID)
+        conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
+        return
+    }
 
-	if room.Receiver != nil {
-		conn.WriteJSON(map[string]string{"type": "error", "message": "Room is full"})
-		return
-	}
+    room.mu.Lock()
+    defer room.mu.Unlock()
 
-	room.Receiver = conn
-	conn.WriteJSON(map[string]string{"type": "joined"})
-	room.Sender.WriteJSON(map[string]string{"type": "peer-joined"})
+    if room.Receiver != nil {
+        log.Printf("Room is full: %s", roomID)
+        conn.WriteJSON(map[string]string{"type": "error", "message": "Room is full"})
+        return
+    }
+
+    room.Receiver = conn
+    conn.WriteJSON(map[string]string{"type": "joined"})
+    room.Sender.WriteJSON(map[string]string{"type": "peer-joined"})
+    log.Println("Peer joined room:", roomID)
 }
 
 func handleSignaling(conn *websocket.Conn, msg map[string]interface{}) {
+	log.Println("Received signaling message:", msg)
+
 	roomID := msg["room"].(string)
 	roomsMu.Lock()
 	room, exists := rooms[roomID]

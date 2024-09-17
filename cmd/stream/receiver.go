@@ -2,7 +2,7 @@ package stream
 
 import (
 	"encoding/binary"
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +16,7 @@ import (
 func ReceiveFile(roomID string) {
 	peerConnection := webrtcconn.CreatePeerConnection()
 	peerConnection.OnDataChannel(func(d *webrtc.DataChannel) {
-		fmt.Println("New DataChannel:", d.Label())
+		log.Println("New DataChannel:", d.Label())
 		receiveFile(d)
 	})
 
@@ -33,11 +33,12 @@ func receiveFile(dataChannel *webrtc.DataChannel) {
 	var mu sync.Mutex
 
 	dataChannel.OnMessage(func(msg webrtc.DataChannelMessage) {
+		log.Println("Received DataChannel message")
 		if file == nil {
 			metadata := string(msg.Data)
 			parts := strings.Split(metadata, ":")
 			if len(parts) != 2 {
-				fmt.Println("Invalid metadata")
+				log.Println("Invalid metadata")
 				return
 			}
 
