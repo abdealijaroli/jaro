@@ -16,7 +16,6 @@ type Storage interface {
 	UpdateAccount(*types.Account) error
 	GetAccounts() ([]*types.Account, error)
 	GetAccountByID(int) (*types.Account, error)
-	CreateWaitlist(string, string) error
 }
 
 type PostgresStore struct {
@@ -42,7 +41,6 @@ func (s *PostgresStore) Init() error {
 	for _, initFunc := range []func() error{
 		s.CreateAccountTable,
 		s.CreateShortURLTable,
-		s.CreateWaitlistTable,
 	} {
 		if err := initFunc(); err != nil {
 			return fmt.Errorf("initialization error: %w", err)
@@ -120,23 +118,6 @@ func (s *PostgresStore) CheckFileTransfer(shortURL string) (bool, error) {
 		return false, err
 	}
 	return isFileTransfer, nil
-}
-
-func (s *PostgresStore) CreateWaitlistTable() error {
-	query := `CREATE TABLE IF NOT EXISTS waitlist (
-		id SERIAL PRIMARY KEY,
-		name VARCHAR(50),
-		email VARCHAR(50),
-		created_at TIMESTAMP
-	)`
-	_, err := s.db.Exec(query)
-	return err
-}
-
-func (s *PostgresStore) CreateWaitlist(name, email string) error {
-	insertQuery := `INSERT INTO waitlist (name, email, created_at) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(insertQuery, name, email, time.Now())
-	return err
 }
 
 func (s *PostgresStore) CreateAccount(acc *types.Account) error {

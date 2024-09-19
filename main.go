@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/abdealijaroli/jaro/api"
 	"github.com/abdealijaroli/jaro/cmd"
 	"github.com/abdealijaroli/jaro/cmd/signaling"
 	"github.com/abdealijaroli/jaro/store"
@@ -46,10 +45,6 @@ func main() {
 			return
 		}
 		http.Redirect(w, r, originalURL, http.StatusFound)
-	})
-
-	http.HandleFunc("POST /signup", func(w http.ResponseWriter, r *http.Request) {
-		api.AddUserToWaitlist(w, r, storage)
 	})
 
 	signaling.StartSignalingServer()
