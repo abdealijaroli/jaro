@@ -1,27 +1,27 @@
 name: Deploy to EC2
 
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Image"]
-    types:
-      - completed
+    workflow_run:
+        workflows: ["Build and Push Docker Image"]
+        types:
+            - completed
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
 
-      - name: Deploy to Droplet
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PWD }} 
-          script: |
-            docker pull abdealijaroli/jaro:latest
-            docker stop jaro || true
-            docker rm jaro || true
-            docker run -d --name jaro -e DB_URL="${{ secrets.DB_URL }}" -p 8008:8008 abdealijaroli/jaro:latest
+            - name: Deploy to server
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SERVER_IP }}
+                  username: ${{ secrets.SERVER_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: |
+                      docker pull abdealijaroli/jaro:latest
+                      docker stop jaro || true
+                      docker rm jaro || true
+                      docker run -d --name jaro -e DB_URL="${{ secrets.DB_URL }}" -p 8008:8008 abdealijaroli/jaro:latest
