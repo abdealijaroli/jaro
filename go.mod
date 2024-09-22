@@ -5,7 +5,6 @@ go 1.22.3
 require (
 	github.com/a-h/templ v0.2.747
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/lib/pq v1.10.9
 	github.com/pion/webrtc/v3 v3.3.1
@@ -14,6 +13,7 @@ require (
 )
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/pion/datachannel v1.5.8 // indirect
