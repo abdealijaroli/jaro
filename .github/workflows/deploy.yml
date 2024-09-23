@@ -24,4 +24,4 @@ jobs:
                       docker pull abdealijaroli/jaro:latest
                       docker stop jaro || true
                       docker rm jaro || true
-                      docker run -d --name jaro -e DB_URL="${{ secrets.DB_URL }}" -p 8008:8008 abdealijaroli/jaro:latest
+                      docker run -d --name jaro -e DB_URL="${{ secrets.DB_URL }}" -p 8008:8008 abdealijaroli/jaro:latest 
