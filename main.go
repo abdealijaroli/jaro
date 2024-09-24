@@ -47,7 +47,7 @@ func main() {
 		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
-	signaling.StartSignalingServer()
+	http.HandleFunc("/ws", signaling.HandleSignaling)
 
 	if len(os.Args) > 1 {
 		cmd.Execute()

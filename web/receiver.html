@@ -9,6 +9,7 @@
             href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap"
             rel="stylesheet"
         />
+
         <style>
             :root {
                 --background: hsl(36, 39%, 88%);
@@ -107,12 +108,16 @@
         </style>
         <script>
             const roomID = window.location.pathname.substring(1);
-
-            console.log("Room ID:", roomID);
+            let peerConnection;
+            let dataChannel;
+            let fileMetadata;
+            let receivedSize = 0;
+            let fileSize = 0;
+            let fileBuffer = [];
 
             function startReceiving() {
                 const ws = new WebSocket("ws://localhost:8008/ws");
-                const pc = new RTCPeerConnection();
+                peerConnection = new RTCPeerConnection();
 
                 ws.onopen = () => {
                     if (roomID) {
@@ -123,56 +128,103 @@
                     }
                 };
 
-                ws.onmessage = (message) => {
+                ws.onmessage = async (message) => {
                     const msg = JSON.parse(message.data);
                     console.log("Received message:", msg);
-                    if (msg.type === "offer") {
-                        pc.setRemoteDescription(
-                            new RTCSessionDescription({
-                                type: "offer",
-                                sdp: msg.sdp,
-                            })
-                        );
-                        pc.createAnswer().then((answer) => {
-                            pc.setLocalDescription(answer);
+
+                    switch (msg.type) {
+                        case "offer":
+                            await peerConnection.setRemoteDescription(
+                                new RTCSessionDescription(msg)
+                            );
+                            const answer = await peerConnection.createAnswer();
+                            await peerConnection.setLocalDescription(answer);
                             ws.send(
                                 JSON.stringify({
                                     type: "answer",
                                     sdp: answer.sdp,
+                                    room: roomID,
                                 })
                             );
-                        });
-                    } else if (msg.type === "answer") {
-                        pc.setRemoteDescription(
-                            new RTCSessionDescription({
-                                type: "answer",
-                                sdp: msg.sdp,
-                            })
-                        );
-                    } else if (msg.type === "ice-candidate") {
-                        pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
-                    } else if (msg.type === "peer-joined") {
-                        console.log("Peer joined");
+                            break;
+                        case "ice-candidate":
+                            await peerConnection.addIceCandidate(
+                                new RTCIceCandidate(msg.candidate)
+                            );
+                            break;
                     }
                 };
 
-                pc.ondatachannel = (event) => {
-                    const dataChannel = event.channel;
-                    dataChannel.onmessage = (event) => {
-                        const data = event.data;
-                        if (typeof data === "string") {
-                            console.log("File metadata:", data);
-                        } else {
-                            console.log("Received file chunk");
-                        }
-                    };
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        ws.send(
+                            JSON.stringify({
+                                type: "ice-candidate",
+                                candidate: event.candidate,
+                                room: roomID,
+                            })
+                        );
+                    }
                 };
+
+                peerConnection.ondatachannel = (event) => {
+                    dataChannel = event.channel;
+                    dataChannel.onmessage = handleDataChannelMessage;
+                    dataChannel.onopen = () =>
+                        console.log("Data channel opened");
+                    dataChannel.onclose = () =>
+                        console.log("Data channel closed");
+                };
+            }
+
+            function handleDataChannelMessage(event) {
+                const data = event.data;
+                if (typeof data === "string") {
+                    if (data === "EOF") {
+                        const file = new Blob(fileBuffer);
+                        const downloadLink = document.createElement("a");
+                        downloadLink.href = URL.createObjectURL(file);
+                        downloadLink.download = fileMetadata.name;
+                        downloadLink.click();
+                        fileBuffer = [];
+                        receivedSize = 0;
+                        updateProgress(100);
+                    } else {
+                        fileMetadata = JSON.parse(data);
+                        fileSize = fileMetadata.size;
+                        document.getElementById("file-name").textContent =
+                            fileMetadata.name;
+                        document.getElementById("file-size").textContent =
+                            formatFileSize(fileSize);
+                    }
+                } else {
+                    fileBuffer.push(data);
+                    receivedSize += data.byteLength;
+                    updateProgress((receivedSize / fileSize) * 100);
+                }
+            }
+
+            function updateProgress(percentage) {
+                const progressBar = document.getElementById("progress-bar");
+                const progressText = document.getElementById("progress-text");
+                progressBar.style.width = percentage + "%";
+                progressText.textContent = percentage.toFixed(2) + "%";
+            }
+
+            function formatFileSize(bytes) {
+                const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+                if (bytes === 0) return "0 Byte";
+                const i = parseInt(
+                    Math.floor(Math.log(bytes) / Math.log(1024))
+                );
+                return (
+                    Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i]
+                );
             }
 
             window.onload = startReceiving;
         </script>
     </head>
-
     <body>
         <header>
             <div class="container header-content">
@@ -196,10 +248,28 @@
                 </a>
             </div>
         </header>
-
         <main class="container">
             <h1>Here's a file for you 📩:</h1>
-            <p>Waiting for your fav file to arrive...</p>
+            <p>File: <span id="file-name">Waiting for file...</span></p>
+            <p>Size: <span id="file-size">-</span></p>
+            <div
+                id="progress-container"
+                style="width: 100%; background-color: #ddd; margin-top: 20px"
+            >
+                <div
+                    id="progress-bar"
+                    style="
+                        width: 0%;
+                        height: 30px;
+                        background-color: #4caf50;
+                        text-align: center;
+                        line-height: 30px;
+                        color: white;
+                    "
+                >
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
         </main>
     </body>
 </html>
