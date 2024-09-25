@@ -193,3 +193,10 @@ func handleDisconnect(conn *websocket.Conn) {
 		room.mu.Unlock()
 	}
 }
+
+func cleanupRoom(roomID string) {
+	roomsMu.Lock()
+	delete(rooms, roomID)
+	roomsMu.Unlock()
+	log.Printf("Room %s cleaned up", roomID)
+}
