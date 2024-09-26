@@ -105,8 +105,24 @@
                 font-size: 1rem;
                 margin-bottom: 1rem;
             }
+
+            .progress-container {
+                width: 100%;
+                background-color: #ddd;
+                margin-top: 20px;
+            }
+
+            .progress-bar {
+                width: 0%;
+                height: 30px;
+                background-color: #4caf50;
+                text-align: center;
+                line-height: 30px;
+                color: white;
+            }
         </style>
-        <script>
+
+        <!-- <script>
             const roomID = window.location.pathname.substring(1);
             let peerConnection;
             let dataChannel;
@@ -121,8 +137,8 @@
 
                 ws.onopen = () => {
                     if (roomID) {
+                        console.log("WebSocket connection established");
                         ws.send(JSON.stringify({ type: "join", room: roomID }));
-                        console.log("Joined room:", roomID);
                     } else {
                         console.error("Room ID is not defined.");
                     }
@@ -133,6 +149,12 @@
                     console.log("Received message:", msg);
 
                     switch (msg.type) {
+                        case "error":
+                            console.error("Error:", msg.message);
+                            return; // Stop further execution if there's an error
+                        case "join":
+                            console.log(`Joined room: ${msg.room}`);
+                            break;
                         case "offer":
                             await peerConnection.setRemoteDescription(
                                 new RTCSessionDescription(msg)
@@ -179,6 +201,7 @@
 
             function handleDataChannelMessage(event) {
                 const data = event.data;
+
                 if (typeof data === "string") {
                     if (data === "EOF") {
                         const file = new Blob(fileBuffer);
@@ -223,7 +246,7 @@
             }
 
             window.onload = startReceiving;
-        </script>
+        </script> -->
     </head>
     <body>
         <header>
@@ -252,21 +275,8 @@
             <h1>Here's a file for you 📩:</h1>
             <p>File: <span id="file-name">Waiting for file...</span></p>
             <p>Size: <span id="file-size">-</span></p>
-            <div
-                id="progress-container"
-                style="width: 100%; background-color: #ddd; margin-top: 20px"
-            >
-                <div
-                    id="progress-bar"
-                    style="
-                        width: 0%;
-                        height: 30px;
-                        background-color: #4caf50;
-                        text-align: center;
-                        line-height: 30px;
-                        color: white;
-                    "
-                >
+            <div id="progress-container" class="progress-container">
+                <div id="progress-bar" class="progress-bar">
                     <span id="progress-text">0%</span>
                 </div>
             </div>
