@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+
 	"os"
 
 	"github.com/abdealijaroli/jaro/cmd"
@@ -47,12 +48,21 @@ func main() {
 		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
-	http.HandleFunc("/ws", signaling.HandleSignaling)
-
 	if len(os.Args) > 1 {
 		cmd.Execute()
 	}
 
-	log.Println("Server running on :8008")
-	http.ListenAndServe(":8008", nil)
+	go func() {
+		log.Println("HTTP server running on :8008")
+		if err := http.ListenAndServe(":8008", nil); err != nil {
+			log.Fatalf("HTTP server error: %v", err)
+		}
+	}()
+
+	// Start the WebSocket server on port 8080
+	http.HandleFunc("/ws", signaling.HandleSignaling)
+	log.Println("WebSocket server running on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("WebSocket server error: %v", err)
+	}
 }
