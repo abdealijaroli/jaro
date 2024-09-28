@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
-
+	
 	"github.com/spf13/cobra"
 
 	"github.com/abdealijaroli/jaro/store"
@@ -32,6 +32,7 @@ var rootCmd = &cobra.Command{
 			fmt.Printf("Your sweetened link: %s\n", shortened)
 			return
 		} else if fileToTransfer != "" {
+			fmt.Printf("File transfer initiated for: %s\n", fileToTransfer)
 			TransferFile(fileToTransfer, storage)
 			return
 		} else {
