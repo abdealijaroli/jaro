@@ -10,8 +10,7 @@ import (
 )
 
 func ShortenURL(longURL string, store *store.PostgresStore) (string, error) {
-	shortCode := utils.GenerateShortCode(longURL)
-	shortURL := fmt.Sprintf("https://jaroli.me/%s", shortCode)
+	shortURL, shortCode := utils.GenerateShortCode(longURL)
 
 	store.AddShortURLToDB(longURL, shortCode, false)
 

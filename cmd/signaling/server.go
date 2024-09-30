@@ -21,8 +21,8 @@ var (
 			return true
 		},
 	}
-	rooms   = make(map[string]*Room)
-	roomsMu sync.Mutex
+	Rooms   = make(map[string]*Room)
+	RoomsMu sync.Mutex
 )
 
 // HandleSignaling manages WebSocket connections, handles messages, and room lifecycle.
@@ -82,16 +82,16 @@ func HandleSignaling(w http.ResponseWriter, r *http.Request) {
 
 // handleCreate handles room creation by the sender.
 func handleCreate(conn *websocket.Conn, roomID string) {
-	roomsMu.Lock()
-	defer roomsMu.Unlock()
+	RoomsMu.Lock()
+	defer RoomsMu.Unlock()
 
-	if _, exists := rooms[roomID]; exists {
+	if _, exists := Rooms[roomID]; exists {
 		conn.WriteJSON(map[string]string{"type": "error", "message": "Room already exists"})
 		return
 	}
 
 	room := &Room{Sender: conn}
-	rooms[roomID] = room
+	Rooms[roomID] = room
 	log.Printf("Room created: %s", roomID)
 
 	response := map[string]string{"type": "room-created", "room": roomID}
@@ -104,9 +104,9 @@ func handleCreate(conn *websocket.Conn, roomID string) {
 func handleJoin(conn *websocket.Conn, roomID string) {
 	log.Printf("Attempting to join room: %s", roomID)
 
-	roomsMu.Lock()
-	room, exists := rooms[roomID]
-	roomsMu.Unlock()
+	RoomsMu.Lock()
+	room, exists := Rooms[roomID]
+	RoomsMu.Unlock()
 
 	if !exists {
 		log.Printf("Room not found: %s", roomID)
@@ -139,9 +139,9 @@ func handleJoin(conn *websocket.Conn, roomID string) {
 func handleSignaling(conn *websocket.Conn, msg map[string]interface{}) {
 	roomID := msg["room"].(string)
 
-	roomsMu.Lock()
-	room, exists := rooms[roomID]
-	roomsMu.Unlock()
+	RoomsMu.Lock()
+	room, exists := Rooms[roomID]
+	RoomsMu.Unlock()
 
 	if !exists {
 		conn.WriteJSON(map[string]string{"type": "error", "message": "Room not found"})
@@ -169,10 +169,10 @@ func handleSignaling(conn *websocket.Conn, msg map[string]interface{}) {
 
 // handleDisconnect cleans up the room if one of the peers disconnects.
 func handleDisconnect(conn *websocket.Conn) {
-	roomsMu.Lock()
-	defer roomsMu.Unlock()
+	RoomsMu.Lock()
+	defer RoomsMu.Unlock()
 
-	for roomID, room := range rooms {
+	for roomID, room := range Rooms {
 		room.mu.Lock()
 
 		// Check if the disconnecting connection is the sender or receiver
@@ -186,17 +186,10 @@ func handleDisconnect(conn *websocket.Conn) {
 
 		// If both the sender and receiver are nil, remove the room
 		if room.Sender == nil && room.Receiver == nil {
-			delete(rooms, roomID)
+			delete(Rooms, roomID)
 			log.Printf("Room %s deleted", roomID)
 		}
 
 		room.mu.Unlock()
 	}
-}
-
-func cleanupRoom(roomID string) {
-	roomsMu.Lock()
-	delete(rooms, roomID)
-	roomsMu.Unlock()
-	log.Printf("Room %s cleaned up", roomID)
 }

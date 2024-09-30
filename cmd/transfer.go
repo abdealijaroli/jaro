@@ -1,34 +1,60 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
-	"os"
 
-	"github.com/skip2/go-qrcode"
+	"github.com/gorilla/websocket"
 
 	"github.com/abdealijaroli/jaro/cmd/stream"
+	"github.com/abdealijaroli/jaro/cmd/utils"
+	"github.com/abdealijaroli/jaro/cmd/webrtcconn"
 	"github.com/abdealijaroli/jaro/store"
 )
 
 func TransferFile(filePath string, store *store.PostgresStore) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		log.Printf("Error opening file: %v\n", err)
-		return
-	}
-	defer file.Close()
+    shortURL, roomID := utils.GenerateShortCode(filePath)
+    utils.GenerateQRCode(shortURL)
 
-	shortURL := stream.InitiateTransfer(filePath, store)
+    pc := webrtcconn.CreatePeerConnection()
+    log.Printf("Peer connection created for %s\n", roomID)
 
-	qr, err := qrcode.New(shortURL, qrcode.Medium)
-	if err != nil {
-		log.Printf("Error generating QR code: %v\n", err)
-		return
-	}
+    offer, err := pc.CreateOffer(nil)
+    if err != nil {
+        log.Fatalf("Failed to create offer: %v", err)
+    }
 
-	fmt.Println("QR Code for your shareable file link: ")
-	fmt.Println(qr.ToSmallString(false))
+    err = pc.SetLocalDescription(offer)
+    if err != nil {
+        log.Fatalf("Failed to set local description: %v", err)
+    }
 
-	fmt.Printf("Your shareable file link is: %s\n", shortURL)
+    log.Printf("Local description set for %s\n", roomID)
+
+    // Establish WebSocket connection for signaling
+    conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:8080/ws", nil)
+    if err != nil {
+        log.Fatalf("Failed to connect to signaling server: %v", err)
+    }
+    defer conn.Close()
+
+    // Create the room on the signaling server
+    err = stream.CreateRoom(conn, roomID)
+    if err != nil {
+        log.Fatalf("Failed to create room: %v", err)
+    }
+
+    // Send the offer to the signaling server
+    conn.WriteJSON(map[string]string{"type": "offer", "room": roomID, "sdp": offer.SDP})
+
+    log.Printf("Signaling connection established for %s\n", roomID)
+
+    // Handle signaling messages
+    go webrtcconn.HandleSignaling(pc, roomID)
+
+	
+
+    // stream.InitiateTransfer(conn, filePath, roomID, store)
 }
+// func ReceiveFile(roomID string) {
+// 	stream.ReceiveFile(roomID)
+// }

@@ -3,13 +3,19 @@ package main
 import (
 	"log"
 	"net/http"
-
 	"os"
 
 	"github.com/abdealijaroli/jaro/cmd"
-	"github.com/abdealijaroli/jaro/cmd/signaling"
+	"github.com/abdealijaroli/jaro/cmd/stream"
 	"github.com/abdealijaroli/jaro/store"
+	"github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all origins for this example
+	},
+}
 
 func main() {
 	storage, err := store.NewPostgresStore()
@@ -48,21 +54,39 @@ func main() {
 		http.Redirect(w, r, originalURL, http.StatusFound)
 	})
 
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		roomID := r.URL.Query().Get("room")
+		if roomID == "" {
+			http.Error(w, "Missing room ID", http.StatusBadRequest)
+			return
+		}
+
+		// Upgrade HTTP connection to WebSocket
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Printf("Error upgrading to WebSocket: %v", err)
+			return
+		}
+		defer conn.Close()
+
+		//Retrieve the file path associated with this room ID from your database
+		filePath, err := storage.GetOriginalURL(roomID)
+		if err != nil {
+			log.Printf("Error getting file path for room %s: %v", roomID, err)
+			conn.WriteMessage(websocket.TextMessage, []byte("Error: File not found"))
+			return
+		}
+
+		// Initiate the file transfer
+		stream.HandleTransferRequest(conn, filePath)
+	})
+
 	if len(os.Args) > 1 {
 		cmd.Execute()
 	}
 
-	go func() {
-		log.Println("HTTP server running on :8008")
-		if err := http.ListenAndServe(":8008", nil); err != nil {
-			log.Fatalf("HTTP server error: %v", err)
-		}
-	}()
-
-	// Start the WebSocket server on port 8080
-	http.HandleFunc("/ws", signaling.HandleSignaling)
-	log.Println("WebSocket server running on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("WebSocket server error: %v", err)
+	log.Println("Server starting on :8008")
+	if err := http.ListenAndServe(":8008", nil); err != nil {
+		log.Fatalf("Error starting server: %v", err)
 	}
 }
