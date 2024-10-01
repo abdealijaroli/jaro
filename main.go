@@ -83,6 +83,7 @@ func main() {
 
 	if len(os.Args) > 1 {
 		cmd.Execute()
+		return
 	}
 
 	log.Println("Server starting on :8008")
