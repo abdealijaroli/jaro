@@ -1,12 +1,35 @@
 package api
 
 import (
-	// "encoding/json"
-	// "log"
-	// "net/http"
+	"net/http"
 
-	// "github.com/abdealijaroli/jaro/store"
+	"github.com/abdealijaroli/jaro/store"
 )
+
+func HandleGetAndRedirect(storage *store.PostgresStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		shortCode := r.URL.Path[1:]
+		if shortCode == "" {
+			http.ServeFile(w, r, "web/index.html")
+			return
+		}
+		originalURL, err := storage.GetOriginalURL(shortCode)
+		if err != nil {
+			http.Error(w, "four oh four - not found :(", http.StatusNotFound)
+			return
+		}
+		isFileTransfer, err := storage.CheckFileTransfer(shortCode)
+		if err != nil {
+			http.Error(w, "four oh four - not found :(", http.StatusNotFound)
+			return
+		}
+		if isFileTransfer {
+			http.ServeFile(w, r, "web/receiver.html")
+			return
+		}
+		http.Redirect(w, r, originalURL, http.StatusFound)
+	}
+}
 
 // func AddUserToWaitlist(w http.ResponseWriter, r *http.Request, storage *store.PostgresStore) {
 // 	var name, email string
