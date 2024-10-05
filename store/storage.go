@@ -81,16 +81,6 @@ func (s *PostgresStore) CreateShortURLTable() error {
 	return err
 }
 
-func (s *PostgresStore) GetFilePathForRoom(roomID string) (string, error) {
-	var filePath string
-	query := `SELECT original_url FROM accounts WHERE short_url = $1`
-	err := s.db.QueryRow(query, roomID).Scan(&filePath)
-	if err != nil {
-		return "", err
-	}
-	return filePath, nil
-}
-
 func (s *PostgresStore) AddShortURLToDB(originalURL string, shortURL string, isFileTransfer bool) error {
 	query := `INSERT INTO short_urls (original_url, short_url, is_file_transfer, created_at) 
 	          VALUES ($1, $2, $3, $4) 
