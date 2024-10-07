@@ -1,7 +1,10 @@
 # Jaro
 
 ## Overview
-Jaro is a CLI app built as a developer tool for developers who don't want to leave their terminals. You can achieve two things - shorten links and transfer files, all from your terminal.
+Jaro is a CLI app dev tool for developers who are all things terminal. Jaro can help you get done two things right from your terminal - shorten links and securely transfer files p2p.
+
+## Quick demo ✨
+https://github.com/user-attachments/assets/154eff71-eace-4536-8644-1c6e7e16ee56
 
 ## Usage
 To get started with Jaro, pull the Docker image from Docker Hub:
